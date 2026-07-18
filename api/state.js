@@ -2,9 +2,9 @@ const fs = require("fs");
 const path = require("path");
 
 const DUCK_COUNT = 100;
-const owner = process.env.GITHUB_OWNER || "gtrolo";
-const repo = process.env.GITHUB_REPO || "duckhunt100";
-const branch = process.env.GITHUB_BRANCH || "main";
+const owner = cleanEnv("GITHUB_OWNER", "gtrolo");
+const repo = cleanEnv("GITHUB_REPO", "duckhunt100");
+const branch = cleanEnv("GITHUB_BRANCH", "main");
 const statePath = "data/state.json";
 
 module.exports = async function handler(req, res) {
@@ -193,6 +193,11 @@ async function githubRequest(method, apiPath, body, allowNotFound = false) {
   }
 
   return response.json();
+}
+
+function cleanEnv(name, fallback = "") {
+  const value = process.env[name];
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
 
 function readBody(req) {
