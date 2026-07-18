@@ -5,7 +5,7 @@ const PUBLIC_URL = "https://duckhunt100.vercel.app";
 const duckNames = [
   "Badmeester - Bram",
   "Kayleigh Kwakqueen",
-  "Rubberrel - Rolo",
+  "Rubberen Rolo",
   "Snavelstorm Cintha",
   "Cabana - Claudia",
   "Duck Diesel Dennis",
