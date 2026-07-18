@@ -616,6 +616,22 @@ h2 {
   display: none;
 }
 
+.tile-heading {
+  padding: 13px 9px 8px;
+}
+
+.tile-heading .name-input {
+  min-height: 34px;
+  padding: 0 4px;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 0.82rem;
+  font-weight: 950;
+  line-height: 1.16;
+  text-align: center;
+}
+
 .image-button {
   position: relative;
   display: grid;
@@ -716,19 +732,6 @@ h2 {
   box-shadow: 0 10px 22px rgba(255, 190, 54, 0.28);
   font-size: 0.68rem;
   font-weight: 950;
-}
-
-.bottom-number {
-  margin: 7px 8px 0;
-  padding: 6px 7px;
-  color: var(--pool-deep);
-  background: rgba(255, 255, 255, 0.68);
-  border-radius: 999px;
-  font-size: 0.62rem;
-  font-weight: 950;
-  line-height: 1.1;
-  text-align: center;
-  text-transform: uppercase;
 }
 
 .bear-body {

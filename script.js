@@ -349,7 +349,6 @@ function render() {
     const duckToken = card.querySelector(".duck-token");
     const duckInitials = card.querySelector(".duck-initials");
     const badge = card.querySelector(".badge");
-    const bottomNumber = card.querySelector(".bottom-number");
     const checkbox = card.querySelector("input[type='checkbox']");
     const nameInput = card.querySelector(".name-input");
     const storyText = card.querySelector(".story-text");
@@ -372,7 +371,6 @@ function render() {
     duckToken.style.setProperty("--token-rotate", `${((bear.id % 7) - 3) * 2}deg`);
     duckInitials.textContent = initialsForName(bear.name);
     badge.textContent = `#${String(bear.id).padStart(3, "0")}`;
-    bottomNumber.textContent = `Onderop staat nummer ${String(bear.id).padStart(3, "0")}`;
     checkbox.checked = bear.found;
     checkbox.disabled = false;
     nameInput.value = bear.name;
