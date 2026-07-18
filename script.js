@@ -731,6 +731,9 @@ function updateProgress() {
 
 function applyFilters() {
   const query = searchInput.value.trim().toLowerCase();
+  const numberMatch = query.match(/^#?0*(\d{1,3})$/);
+  const directHitId = numberMatch ? Number(numberMatch[1]) : 0;
+  const hasDirectHit = directHitId >= 1 && directHitId <= BEAR_COUNT;
 
   [...grid.children].forEach((card) => {
     const bear = state.find((item) => item.id === Number(card.dataset.id));
@@ -739,9 +742,11 @@ function applyFilters() {
       (activeFilter === "found" && bear.found) ||
       (activeFilter === "missing" && !bear.found);
     const haystack = `${bear.id} ${bear.name} ${bear.story} ${bear.note}`.toLowerCase();
-    const matchesSearch = !query || haystack.includes(query);
-    card.classList.toggle("is-hidden", !(matchesFilter && matchesSearch));
+    const isDirectHit = hasDirectHit && bear.id === directHitId;
+    const matchesSearch = !query || isDirectHit || haystack.includes(query);
+    card.classList.toggle("is-hidden", !(isDirectHit || (matchesFilter && matchesSearch)));
     card.classList.toggle("is-found", bear.found);
+    card.classList.toggle("is-direct-hit", isDirectHit);
   });
 }
 

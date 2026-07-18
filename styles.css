@@ -647,6 +647,12 @@ h2 {
   display: none;
 }
 
+.bear-card.is-direct-hit {
+  grid-column: 1 / -1;
+  border-radius: 22px;
+  box-shadow: 0 18px 40px rgba(6, 84, 103, 0.16);
+}
+
 .tile-heading {
   padding: 13px 9px 8px;
 }
@@ -748,6 +754,32 @@ h2 {
 
 .image-button:hover .duck-token {
   transform: scale(1.06) rotate(calc(var(--token-rotate) + 2deg));
+}
+
+.bear-card.is-direct-hit .image-button {
+  min-height: 112px;
+  height: 116px;
+  aspect-ratio: auto;
+}
+
+.bear-card.is-direct-hit .duck-token {
+  width: min(34%, 108px);
+}
+
+.bear-card.is-direct-hit .duck-initials {
+  font-size: clamp(1.45rem, 8vw, 2.2rem);
+}
+
+.bear-card.is-direct-hit .found-toggle {
+  min-height: 46px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  font-size: 0.86rem;
+}
+
+.bear-card.is-direct-hit .found-toggle input {
+  width: 24px;
+  height: 24px;
 }
 
 .badge {
