@@ -3,7 +3,7 @@ const path = require("path");
 
 const DUCK_COUNT = 100;
 const owner = process.env.GITHUB_OWNER || "gtrolo";
-const repo = process.env.GITHUB_REPO || "Duckhunt100";
+const repo = process.env.GITHUB_REPO || "duckhunt100";
 const branch = process.env.GITHUB_BRANCH || "main";
 const statePath = "data/state.json";
 
