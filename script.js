@@ -361,12 +361,16 @@ function getAdminPin() {
   const params = new URLSearchParams(window.location.search);
   const urlPin = params.get("beheer") || params.get("admin");
   if (urlPin) {
-    localStorage.setItem(ADMIN_STORAGE_KEY, urlPin);
+    localStorage.setItem(ADMIN_STORAGE_KEY, cleanPin(urlPin));
     window.history.replaceState({}, "", window.location.pathname + window.location.hash);
-    return urlPin;
+    return cleanPin(urlPin);
   }
 
-  return localStorage.getItem(ADMIN_STORAGE_KEY) || "";
+  return cleanPin(localStorage.getItem(ADMIN_STORAGE_KEY) || "");
+}
+
+function cleanPin(value) {
+  return String(value || "").trim().toLowerCase();
 }
 
 async function loadSharedState() {
@@ -406,10 +410,11 @@ async function verifyAdminAccess() {
 }
 
 async function verifyPin(pin) {
+  const clean = cleanPin(pin);
   const response = await fetch("/api/state", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ adminPin: pin, verifyOnly: true })
+    body: JSON.stringify({ adminPin: clean, verifyOnly: true })
   });
 
   if (!response.ok) throw new Error("beheerlink niet geldig");
@@ -425,12 +430,12 @@ async function requestNameEditAccess(bearId) {
 
   try {
     setModeBanner("Wachtwoord checken. Als gij rolo heet, komt dit vast goed.", "saving");
-    if (isLocalHost() && pin.trim().toLowerCase() === "rolo") {
+    if (isLocalHost() && cleanPin(pin) === "rolo") {
       setModeBanner("Lokale naam-edit aan. Rolo heeft zichzelf binnengelaten, uiteraard.", "success");
     } else {
-      await verifyPin(pin.trim());
+      await verifyPin(pin);
     }
-    adminPin = pin.trim();
+    adminPin = cleanPin(pin);
     localStorage.setItem(ADMIN_STORAGE_KEY, adminPin);
     isAdmin = true;
     setModeBanner("Naam-edit aan. Gij moogt de eenden nu hernoemen, maar hou het een beetje gezellig lomp.", "success");

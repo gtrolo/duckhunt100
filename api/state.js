@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
 
   if (req.method === "POST") {
     const body = await readBody(req);
-    const adminPin = process.env.ADMIN_PIN;
+    const adminPin = cleanPin(process.env.ADMIN_PIN || "rolo");
 
     if (body.submission) {
       try {
@@ -34,7 +34,7 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    if (!adminPin || body.adminPin !== adminPin) {
+    if (!adminPin || cleanPin(body.adminPin) !== adminPin) {
       res.status(403).json({
         error: "Nee, nee, nee, nee, nee. Waarschuwing: gij hebt geen eenden gevonden. Gewoon netjes zoeken, foto maken, kwakbewijs indienen. Niet de eendenadministratie van Bram en Kayleigh kapen, jonge."
       });
@@ -198,6 +198,10 @@ async function githubRequest(method, apiPath, body, allowNotFound = false) {
 function cleanEnv(name, fallback = "") {
   const value = process.env[name];
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
+
+function cleanPin(value) {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
 }
 
 function readBody(req) {
