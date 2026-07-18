@@ -71,7 +71,7 @@ const duckNames = [
   "Slippers & Smoesjes - Sem",
   "Bommeltje Bootycall Bo",
   "Jetduck Jortje-Uit Jules",
-  "Tequila Tongval - Tess",
+  "Horny Duck 69",
   "Modderspetter Met Pret Max",
   "Ligbed-Lover Luna",
   "Ducksnack Dubbel - Daan",
