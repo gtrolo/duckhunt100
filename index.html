@@ -125,10 +125,18 @@
     <template id="bearCardTemplate">
       <article class="bear-card">
         <div class="tile-heading">
-          <label class="field-label">
-            <span>Naam</span>
-            <textarea class="name-input" rows="1" aria-label="Naam van eend"></textarea>
-          </label>
+          <div class="name-editor">
+            <p class="name-preview"></p>
+            <div class="name-row">
+              <span class="locked-name" aria-label="Vaste naam"></span>
+              <label class="field-label alias-field">
+                <span>Bijnaam</span>
+                <textarea class="name-input" rows="1" aria-label="Bijnaam van eend"></textarea>
+              </label>
+            </div>
+            <button class="name-order-toggle" type="button">Wissel volgorde</button>
+            <p class="name-rule">Vaste naam blijft staan. Alleen bijnaam wijzigen.</p>
+          </div>
         </div>
         <button class="image-button" type="button">
           <span class="duck-token" aria-hidden="true">

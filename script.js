@@ -8,31 +8,31 @@ const duckNames = [
   "Claudia Clitoris",
   "Cintha Cybersex",
   "Rolo Redcarpet",
-  "Dennis Dynamic",
+  "Dynamic Dennis",
   "Dorith Divine",
   "Suus Sjanscoach",
   "Dustin Deepdive",
   "Esther Extase",
   "Frans Fuckboy",
-  "Joy Juicy",
+  "Juicy Joy",
   "Maarten Mainstage",
-  "Martin Midnight",
-  "Nouelle Nightglow",
-  "Priscilla Poolstar",
-  "Rachel Radeoortjes",
+  "Midnight Martin",
+  "Nightglow Nouelle",
+  "Poolstar Priscilla",
+  "Radeoortjes Rachel",
   "Ray Ruigrijder",
   "Richard Roerstaaf",
   "Stephan Spotlight",
-  "Tim Tease",
-  "Veronica Vamp",
-  "Steffie Siren",
-  "Kelly Kink",
-  "Nicole Nightrider",
+  "Tease Tim",
+  "Vamp Veronica",
+  "Siren Steffie",
+  "Kink Kelly",
+  "Nightrider Nicole",
   "Isha Icemelter",
   "Roy Ruigrijder",
   "Dee Drive",
   "Isabella Irresistible",
-  "Jacinta Jetset",
+  "Jetset Jacinta",
   "Denise Duikplankslet",
   "Barry Bilnaad",
   "Willy Wipkoning",
@@ -103,6 +103,109 @@ const duckNames = [
   "Sofie Skuirtkop",
   "Cas Cockcrash",
   "Vera Vleesvandaal"
+];
+
+const duckRealNames = [
+  "Bram",
+  "Kayleigh",
+  "Claudia",
+  "Cintha",
+  "Rolo",
+  "Dennis",
+  "Dorith",
+  "Suus",
+  "Dustin",
+  "Esther",
+  "Frans",
+  "Joy",
+  "Maarten",
+  "Martin",
+  "Nouelle",
+  "Priscilla",
+  "Rachel",
+  "Ray",
+  "Richard",
+  "Stephan",
+  "Tim",
+  "Veronica",
+  "Steffie",
+  "Kelly",
+  "Nicole",
+  "Isha",
+  "Roy",
+  "Dee",
+  "Isabella",
+  "Jacinta",
+  "Denise",
+  "Barry",
+  "Willy",
+  "Sjef",
+  "Pietje",
+  "Ria",
+  "Tonnie",
+  "Kees",
+  "Annie",
+  "Harrie",
+  "Miep",
+  "Lowie",
+  "Frits",
+  "Truus",
+  "Bennie",
+  "Sjaan",
+  "Gerrie",
+  "Liesje",
+  "Koos",
+  "Rinus",
+  "Toos",
+  "Adje",
+  "Marietje",
+  "Joost",
+  "Nellie",
+  "Dirk",
+  "Puck",
+  "Sjors",
+  "Mats",
+  "Lola",
+  "Raffie",
+  "Bibi",
+  "Gijs",
+  "Noor",
+  "Fenna",
+  "Sem",
+  "Bo",
+  "Jules",
+  "HornyDuck",
+  "Max",
+  "Luna",
+  "Daan",
+  "Mila",
+  "Saar",
+  "Noud",
+  "Fleur",
+  "Lex",
+  "Morris",
+  "Pip",
+  "Kiki",
+  "Teun",
+  "Lotte",
+  "Boris",
+  "Jip",
+  "Nina",
+  "Sam",
+  "Eva",
+  "Moos",
+  "Isa",
+  "Ravi",
+  "Nora",
+  "Guus",
+  "Mick",
+  "Lieke",
+  "Tijn",
+  "Floor",
+  "Olivier",
+  "Sofie",
+  "Cas",
+  "Vera"
 ];
 
 const duckCrimes = [
@@ -322,7 +425,11 @@ async function requestNameEditAccess(bearId) {
 
   try {
     setModeBanner("Wachtwoord checken. Als gij rolo heet, komt dit vast goed.", "saving");
-    await verifyPin(pin.trim());
+    if (isLocalHost() && pin.trim().toLowerCase() === "rolo") {
+      setModeBanner("Lokale naam-edit aan. Rolo heeft zichzelf binnengelaten, uiteraard.", "success");
+    } else {
+      await verifyPin(pin.trim());
+    }
     adminPin = pin.trim();
     localStorage.setItem(ADMIN_STORAGE_KEY, adminPin);
     isAdmin = true;
@@ -369,6 +476,55 @@ function initialsForName(name) {
     .toUpperCase();
 }
 
+function fixedNameForBear(id) {
+  return duckRealNames[id - 1] || duckNames[id - 1]?.split(/\s+/)[0] || "Duck";
+}
+
+function defaultAliasForBear(id) {
+  const fixed = fixedNameForBear(id);
+  return cleanAlias(
+    String(duckNames[id - 1] || `${fixed} Duck`)
+      .split(/\s+/)
+      .find((part) => part.toLowerCase() !== fixed.toLowerCase()) || "Duck"
+  );
+}
+
+function splitEditableName(name, id = 0) {
+  const fixed = fixedNameForBear(id);
+  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+  const fixedIndex = parts.findIndex((part) => part.toLowerCase() === fixed.toLowerCase());
+  const defaultAlias = parts.find((part, index) => index !== fixedIndex) || "Duck";
+
+  if (fixedIndex === 1) {
+    return { fixed, alias: cleanAlias(parts[0] || defaultAlias), aliasFirst: true };
+  }
+
+  if (fixedIndex === 0) {
+    return { fixed, alias: cleanAlias(parts[1] || defaultAlias), aliasFirst: false };
+  }
+
+  const fallbackAlias = id ? defaultAliasForBear(id) : defaultAlias;
+  const defaultName = id ? duckNames[id - 1] || "" : "";
+  return {
+    fixed,
+    alias: cleanAlias(parts[1] || parts[0] || fallbackAlias),
+    aliasFirst: defaultName.split(/\s+/)[1]?.toLowerCase() === fixed.toLowerCase()
+  };
+}
+
+function cleanAlias(value) {
+  return String(value || "")
+    .trim()
+    .replace(/[-–—]/g, "")
+    .split(/\s+/)
+    .filter(Boolean)[0] || "Duck";
+}
+
+function composeDuckName(fixed, alias, aliasFirst) {
+  const clean = cleanAlias(alias);
+  return aliasFirst ? `${clean} ${fixed}` : `${fixed} ${clean}`;
+}
+
 
 function render() {
   grid.innerHTML = "";
@@ -380,7 +536,10 @@ function render() {
     const duckInitials = card.querySelector(".duck-initials");
     const badge = card.querySelector(".badge");
     const checkbox = card.querySelector("input[type='checkbox']");
+    const namePreview = card.querySelector(".name-preview");
+    const lockedName = card.querySelector(".locked-name");
     const nameInput = card.querySelector(".name-input");
+    const nameOrderToggle = card.querySelector(".name-order-toggle");
     const storyText = card.querySelector(".story-text");
     const noteInput = card.querySelector(".note-input");
     const noteField = card.querySelector(".note-field");
@@ -403,9 +562,19 @@ function render() {
     badge.textContent = `#${String(bear.id).padStart(3, "0")}`;
     checkbox.checked = bear.found;
     checkbox.disabled = false;
-    nameInput.value = bear.name;
+    const editableName = splitEditableName(bear.name, bear.id);
+    namePreview.textContent = bear.name;
+    lockedName.textContent = editableName.fixed;
+    nameInput.value = editableName.alias;
     autoGrow(nameInput);
     nameInput.readOnly = !isAdmin;
+    nameOrderToggle.textContent = editableName.aliasFirst ? "Naam eerst" : "Bijnaam eerst";
+    nameOrderToggle.setAttribute(
+      "aria-label",
+      editableName.aliasFirst
+        ? `Zet ${editableName.fixed} vooraan`
+        : `Zet ${editableName.alias} vooraan`
+    );
     storyText.textContent = bear.story;
     noteInput.value = bear.note;
     autoGrow(noteInput);
@@ -442,10 +611,25 @@ function render() {
 
     nameInput.addEventListener("input", () => {
       if (!isAdmin) return;
-      updateBear(bear.id, { name: nameInput.value });
-      duckInitials.textContent = initialsForName(nameInput.value);
+      const currentParts = splitEditableName(bear.name, bear.id);
+      const cleanValue = cleanAlias(nameInput.value);
+      if (nameInput.value !== cleanValue) nameInput.value = cleanValue;
+      const nextName = composeDuckName(currentParts.fixed, cleanValue, currentParts.aliasFirst);
+      updateBear(bear.id, { name: nextName });
+      namePreview.textContent = nextName;
+      duckInitials.textContent = initialsForName(nextName);
       autoGrow(nameInput);
       applyFilters();
+      queueSave();
+    });
+
+    nameOrderToggle.addEventListener("click", async () => {
+      if (!isAdmin && !(await requestNameEditAccess(bear.id))) return;
+      const currentBear = state.find((item) => item.id === bear.id) || bear;
+      const currentParts = splitEditableName(currentBear.name, bear.id);
+      const nextName = composeDuckName(currentParts.fixed, currentParts.alias, !currentParts.aliasFirst);
+      updateBear(bear.id, { name: nextName });
+      render();
       queueSave();
     });
 
