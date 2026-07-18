@@ -385,6 +385,26 @@ h2 {
   transform: rotate(14deg);
 }
 
+.float-glow {
+  right: 18px;
+  top: 16px;
+  width: auto;
+  height: auto;
+  max-width: 132px;
+  min-height: 0;
+  padding: 10px 14px;
+  background: var(--sun);
+  border-radius: 999px 999px 999px 20px;
+  font-size: 0.72rem;
+  line-height: 1.08;
+  text-align: center;
+  box-shadow:
+    0 0 0 8px rgba(255, 255, 255, 0.68),
+    0 0 34px rgba(165, 232, 92, 0.8),
+    0 16px 34px rgba(4, 125, 150, 0.18);
+  transform: rotate(8deg);
+}
+
 .hero-board {
   grid-column: 1 / -1;
   display: grid;
