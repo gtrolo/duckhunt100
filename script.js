@@ -3,106 +3,106 @@ const ADMIN_STORAGE_KEY = "duckhunt100-admin-pin-v1";
 const PUBLIC_URL = "https://duckhunt100.vercel.app";
 
 const duckNames = [
-  "Bram Badmeester",
-  "Kayleigh Kwakqueen",
-  "Claudia Cabana",
-  "Cintha Snavelstorm",
-  "Rubberen Rolo",
-  "Dennis Diesel",
-  "Dorith Drijver",
-  "Suus Snatercoach",
-  "Dustin Duikbril",
-  "Esther Eendurance",
-  "Frans Floatbaas",
-  "Joy Jacuzzi",
-  "Maarten Meeuwschrik",
-  "Martin Modderplons",
-  "Nouelle Natnek",
-  "Priscilla Pooldiva",
-  "Rachel Rietradar",
-  "Ray Relschopper",
-  "Richard Reddingsboei",
-  "Stephan Sloopduck",
-  "Tim Tostiduck",
-  "Veronica Vinylvleugel",
-  "Steffie Strandwacht",
-  "Kelly Kwekservice",
-  "Nijlpaardbadje Nicole",
-  "Isha IJsklont",
-  "Roy Rietrakker",
-  "Dee Drijfveer",
-  "Isabella Inflatable",
-  "Jacinta Jetstream",
-  "Denise Duikplank",
+  "Bram Batsbak",
+  "Kayleigh Khole",
+  "Claudia Clitoris",
+  "Cintha Cybersex",
+  "Rolo Redcarpet",
+  "Dennis Dynamic",
+  "Dorith Divine",
+  "Suus Sjanscoach",
+  "Dustin Deepdive",
+  "Esther Extase",
+  "Frans Fuckboy",
+  "Joy Juicy",
+  "Maarten Mainstage",
+  "Martin Midnight",
+  "Nouelle Nightglow",
+  "Priscilla Poolstar",
+  "Rachel Radeoortjes",
+  "Ray Ruigrijder",
+  "Richard Roerstaaf",
+  "Stephan Spotlight",
+  "Tim Tease",
+  "Veronica Vamp",
+  "Steffie Siren",
+  "Kelly Kink",
+  "Nicole Nightrider",
+  "Isha Icemelter",
+  "Roy Ruigrijder",
+  "Dee Drive",
+  "Isabella Irresistible",
+  "Jacinta Jetset",
+  "Denise Duikplankslet",
   "Barry Bilnaad",
-  "Willy Wipkip",
-  "Sjef Snavel",
-  "Pietje Plonsbroek",
-  "Ria Romance",
-  "Tonnie Waterbed",
-  "Kees Casanova",
-  "Annie Afterparty",
-  "Harrie Handdoek",
-  "Miep Boven",
-  "Luchtbedliefde Lowie",
-  "Frits Frietvet",
-  "Truus Terras",
-  "Buitendouche Bennie",
-  "Sjaan Sjans",
-  "Gerrie Grotebek",
-  "Liesje Limonade",
-  "Koos Koelbox",
-  "Rinus Romeo",
+  "Willy Wipkoning",
+  "Sjef Slikker",
+  "Pietje Pijpbroek",
+  "Ria Rawdog",
+  "Tonnie Wipbed",
+  "Kees Clitoriszoeker",
+  "Annie Aftersex",
+  "Harrie Handtastelijk",
+  "Miep Master",
+  "Lowie Lakenlikker",
+  "Frits Frietvetglijmiddel",
+  "Truus Tieten",
+  "Bennie Buitenwipper",
+  "Sjaan Slet",
+  "Gerrie Grotekeel",
+  "Liesje Likme",
+  "Koos Kinky",
+  "Rinus Rambo",
   "Toos Tease",
-  "Adje Afterdark",
-  "Marietje Maxisjans",
-  "Joost Jatter",
-  "Nellie Natpak",
-  "Dirk Deluxe",
-  "Puck Pretpaal",
-  "Sjors Scharrel",
-  "Mats Moves",
-  "Lola Lingerie",
-  "Raffie Romance",
-  "Bibi Booty",
+  "Adje Anus",
+  "Marietje Megaslet",
+  "Joost Jerkoff",
+  "Nellie Nattepoes",
+  "Dirk Deepdeluxe",
+  "Puck Paalrijder",
+  "Sjors Slettenbak",
+  "Mats Mudmoves",
+  "Lola Latex",
+  "Raffie Rawmeat",
+  "Bibi Bootycall",
   "Gijs Gigolo",
-  "Noor Natkrant",
-  "Fenna Flirt",
-  "Sem Smoesjes",
-  "Bo Bootycall",
-  "Jules Jetduck",
-  "HornyDuck 69",
-  "Max Modderspetter",
-  "Luna Ligbed",
-  "Daan Ducksnack",
-  "Mila Mojito",
-  "Saar Schuimkop",
-  "Noud Nekkletser",
-  "Fleur Floatie",
-  "Lex Luchtmatras",
-  "Morris Magneet",
-  "Pip Pillowtalk",
+  "Noor Nattelakens",
+  "Fenna Fuckflirt",
+  "Sem Snelklaar",
+  "Bo Badslet",
+  "Jules Jerkmeister",
+  "HornyDuck Hornyduck",
+  "Max Modderfokker",
+  "Luna Lakenslet",
+  "Daan Dicksnack",
+  "Mila Milkshake",
+  "Saar Schuimslet",
+  "Noud Notenkraker",
+  "Fleur Flatchest",
+  "Lex Lakenlover",
+  "Morris Moesterop",
+  "Pip Pijpsessie",
   "Kiki Kamasutra",
-  "Teun Tango",
-  "Lotte Limoncello",
-  "Boris Bilspier",
-  "Jip Jatter",
-  "Nina Nachtduik",
-  "Sam Scharrel",
-  "Eva Eendje",
-  "Moos Masseur",
-  "Isa IJsbreker",
-  "Ravi Romantiek",
-  "Nora Naaktstrand",
-  "Guus Glimlach",
-  "Mick Matras",
-  "Lieke Luchtbedlek",
-  "Tijn Tongen",
-  "Floor Frietflirt",
-  "Olivier Opblaasboot",
-  "Sofie Sproeikop",
-  "Cas Cabanacrash",
-  "Vera Vijvervandaal"
+  "Teun Tongtango",
+  "Lotte Limoncellolikker",
+  "Boris Bonker",
+  "Jip Juwelendief",
+  "Nina Nymfo",
+  "Sam Slettenbak",
+  "Eva Erotica",
+  "Moos Masturbator",
+  "Isa Incestlook",
+  "Ravi Rammelen",
+  "Nora Nymfomaan",
+  "Guus Geilegrijns",
+  "Mick Matrasverslijter",
+  "Lieke Lakenlekker",
+  "Tijn Tornado",
+  "Floor Frikandelslet",
+  "Olivier Opblaaspop",
+  "Sofie Skuirtkop",
+  "Cas Cockcrash",
+  "Vera Vleesvandaal"
 ];
 
 const duckCrimes = [
@@ -232,7 +232,7 @@ let state = createFreshState();
 let saveTimer;
 let isSaving = false;
 let pendingProofBearId = 0;
-const adminPin = getAdminPin();
+let adminPin = getAdminPin();
 let isAdmin = false;
 
 function isLocalHost() {
@@ -286,13 +286,7 @@ async function verifyAdminAccess() {
   setModeBanner("Beheerlink gevonden. Effe checken of gij hier de baas zijt, of gewoon een eend met wifi.", "saving");
 
   try {
-    const response = await fetch("/api/state", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ adminPin, verifyOnly: true })
-    });
-
-    if (!response.ok) throw new Error("beheerlink niet geldig");
+    await verifyPin(adminPin);
     isAdmin = true;
     setModeBanner("Beheerstand. Gij zijt admin. Mooi. Niet naast uw schoenen gaan lopen.", "success");
   } catch (error) {
@@ -305,6 +299,42 @@ async function verifyAdminAccess() {
     isAdmin = false;
     localStorage.removeItem(ADMIN_STORAGE_KEY);
     setModeBanner("Publieke jachtstand. Deze beheerlink is niks. Kwakbewijs indienen mag wel, dus doe nuttig.", "warning");
+  }
+}
+
+async function verifyPin(pin) {
+  const response = await fetch("/api/state", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ adminPin: pin, verifyOnly: true })
+  });
+
+  if (!response.ok) throw new Error("beheerlink niet geldig");
+}
+
+async function requestNameEditAccess(bearId) {
+  if (isAdmin) return true;
+  const pin = prompt("Wachtwoord om namen aan te passen. Hint: 4 letters, naam van de maker van deze app.");
+  if (!pin) {
+    document.activeElement?.blur();
+    return false;
+  }
+
+  try {
+    setModeBanner("Wachtwoord checken. Als gij rolo heet, komt dit vast goed.", "saving");
+    await verifyPin(pin.trim());
+    adminPin = pin.trim();
+    localStorage.setItem(ADMIN_STORAGE_KEY, adminPin);
+    isAdmin = true;
+    setModeBanner("Naam-edit aan. Gij moogt de eenden nu hernoemen, maar hou het een beetje gezellig lomp.", "success");
+    render();
+    setTimeout(() => document.querySelector(`#${bearAnchor(bearId)} .name-input`)?.focus(), 0);
+    return true;
+  } catch (error) {
+    document.activeElement?.blur();
+    setModeBanner("Wachtwoord fout. Vier letters, maker van de app. Moeilijker wordt het nie.", "warning");
+    alert("Wachtwoord fout. Hint: 4 letters, naam van de maker van deze app.");
+    return false;
   }
 }
 
@@ -428,7 +458,7 @@ function render() {
     });
 
     nameInput.addEventListener("focus", () => {
-      if (!isAdmin) denyBearTheft();
+      if (!isAdmin) requestNameEditAccess(bear.id);
     });
 
     noteInput.addEventListener("focus", () => {
