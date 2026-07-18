@@ -234,11 +234,11 @@ h1 {
   max-width: 100%;
   margin-bottom: 14px;
   color: var(--navy);
-  font-size: clamp(2.75rem, 16vw, 4.4rem);
-  line-height: 0.84;
+  font-size: clamp(2rem, 10.8vw, 2.88rem);
+  line-height: 0.92;
   letter-spacing: 0;
   text-transform: uppercase;
-  text-wrap: balance;
+  white-space: nowrap;
 }
 
 h2 {
