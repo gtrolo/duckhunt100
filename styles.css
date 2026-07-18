@@ -25,6 +25,7 @@ html {
 
 body {
   margin: 0;
+  width: 100%;
   min-height: 100vh;
   color: var(--ink);
   background:
@@ -33,6 +34,11 @@ body {
     linear-gradient(180deg, #bdf4ff 0%, #eaffff 36%, #fff1be 36%, #fff6cf 100%);
   font-family: "Trebuchet MS", "Avenir Next", Verdana, sans-serif;
   overflow-x: hidden;
+}
+
+html,
+body {
+  max-width: 100%;
 }
 
 body::before {
@@ -67,6 +73,7 @@ a {
   align-items: stretch;
   gap: 9px;
   width: min(calc(100% - 16px), var(--app-width));
+  max-width: calc(100% - 16px);
   margin: 8px auto 0;
   padding: 9px;
   background: rgba(247, 255, 249, 0.76);
@@ -124,6 +131,7 @@ a {
 .nav {
   display: flex;
   width: 100%;
+  min-width: 0;
   flex: 0 0 auto;
   gap: 6px;
 }
@@ -135,6 +143,7 @@ a {
   min-height: 42px;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   padding: 10px 15px;
   color: var(--navy);
   background: rgba(255, 255, 255, 0.72);
@@ -143,6 +152,7 @@ a {
   box-shadow: inset 0 0 0 1px rgba(16, 51, 59, 0.08);
   font-weight: 900;
   text-decoration: none;
+  text-align: center;
   cursor: pointer;
   transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
@@ -151,6 +161,7 @@ a {
   flex: 1;
   font-size: 0.78rem;
   text-transform: uppercase;
+  white-space: normal;
 }
 
 .nav a:hover,
@@ -163,6 +174,7 @@ a {
 
 main {
   width: min(calc(100% - 16px), var(--app-width));
+  max-width: calc(100% - 16px);
   margin: 0 auto;
   padding: 12px 0 70px;
 }
@@ -210,6 +222,7 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
   max-width: 100%;
   padding: 4px 0 0;
 }
@@ -234,8 +247,8 @@ h1 {
   max-width: 100%;
   margin-bottom: 14px;
   color: var(--navy);
-  font-size: clamp(2rem, 10.8vw, 2.88rem);
-  line-height: 0.92;
+  font-size: clamp(1.7rem, 8.3vw, 2.56rem);
+  line-height: 0.98;
   letter-spacing: 0;
   text-transform: uppercase;
   white-space: nowrap;
@@ -252,15 +265,18 @@ h2 {
 }
 
 .hero-copy > p:not(.kicker) {
+  min-width: 0;
   max-width: 60ch;
   color: #234f59;
   font-size: 0.98rem;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .hero-copy .hero-quote {
   position: relative;
   margin: 2px 0 14px;
+  min-width: 0;
   padding: 13px 15px 13px 42px;
   color: var(--navy);
   background: rgba(255, 223, 67, 0.9);
@@ -269,6 +285,7 @@ h2 {
   font-size: 0.96rem;
   font-weight: 950;
   line-height: 1.32;
+  overflow-wrap: anywhere;
 }
 
 .hero-copy .hero-quote::before {
@@ -281,13 +298,27 @@ h2 {
   line-height: 1;
 }
 
-.hero-actions,
 .controls,
 .tools {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+}
+
+.hero-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.hero-actions .button {
+  width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .button.primary {
