@@ -494,9 +494,17 @@ function denyBearTheft() {
 }
 
 function rejectBadPhoto(reason) {
-  const message = `${reason || "Deze foto kwam niet door de eendenbalie."} Maak een echte foto van de verdachte eend met het nummer onderop zichtbaar. Selfies en plafonds tellen nie, kunstenaar.`;
+  const message = `${publicUploadError(reason)} Maak een echte foto van de verdachte eend met het nummer onderop zichtbaar. Selfies en plafonds tellen nie, kunstenaar.`;
   setModeBanner(message, "warning");
   alert(message);
+}
+
+function publicUploadError(reason) {
+  if (!reason) return "Deze foto kwam niet door de eendenbalie.";
+  if (/github api|docs\.github|branch .*not found|create-or-update-file/i.test(reason)) {
+    return "De online eendenadministratie had even kuren. Probeer nog eens; als ie blijft zeiken, geef Rolo een por.";
+  }
+  return reason;
 }
 
 function openProofDialog(bear) {
