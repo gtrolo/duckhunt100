@@ -813,7 +813,7 @@ window.addEventListener("hashchange", openLinkedBear);
 setModeBanner(
   adminPin
     ? "Beheerlink gevonden. Effe controleren of gij hier iets te vertellen hebt..."
-    : "Publieke jachtstand. Iedereen mag een eend vinden, ook de tweeling. Alleen met kwakbewijs. Geen foto, geen praatjes."
+    : "Publieke jachtstand. Iedereen mag een eend vinden. Alleen met kwakbewijs. Geen foto, geen praatjes."
 );
 setRandomHeroQuote();
 render();
