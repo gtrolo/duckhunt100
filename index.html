@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Duckhunt100 - Housewarming Brabant</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Duckhunt100 home">
+        <span class="brand-mark">100</span>
+        <span>
+          <strong>Duckhunt100</strong>
+          <small>Bram & Kayleigh doen Brabant, gij zoekt eenden</small>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Snel naar">
+        <a href="#hunt">100 eenden</a>
+        <a href="#hunt" data-filter-link="found">Gevonden</a>
+        <a href="#poster">Foto's</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="kicker">Bram & Kayleigh’s housewarming eendenjacht</p>
+          <h1>100 Eenden Zoeken</h1>
+          <p>
+            Bram en Kayleigh zijn per direct naor Brabant verhuisd, jonguh. Kei
+            mooi huis, goeie mensen, mar compleet ontspoorde zoektocht meej
+            honderd eenden. Gij komt daor binnen vur een bierke en vur ge 't wit
+            stadde gij in een opblaasbad vol herrieschoppers. Eerst vinde die
+            handel, foto maken en afvinken, war? Ook kei vet vur de tweeling:
+            klein speurwerk, grote lol en iedereen buiten rennen. Daorna pas
+            zonnen, gast. Houdoe eej!
+          </p>
+          <p class="hero-quote" id="heroQuote">Quote wordt geladen. Rustig, gast.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#hunt">Start met zoeken</a>
+            <button class="button ghost" id="panicButton" type="button">Waar zitten die krengen?</button>
+          </div>
+        </div>
+        <div class="pool-scene" aria-label="Pool party sfeer">
+          <img src="./assets/real-ducks/img_2591.jpg" alt="Echte serie van gekleurde eendjes" />
+          <div class="pool-float float-a">Kwak</div>
+          <div class="pool-float float-b">100</div>
+        </div>
+        <div class="hero-board" aria-label="Voortgang">
+          <div class="progress-ring" aria-hidden="true">
+            <span id="progressBig">0</span>
+            <small>/100</small>
+          </div>
+          <p id="statusLine">De eenden doen dom. Heel knap, want da zijn ze ook.</p>
+          <div class="meter" aria-hidden="true"><span id="meterFill"></span></div>
+          <p class="micro" id="unlockLine">Nog 100 te gaan tot Bram en Kayleigh rustig kunnen wonen, ja toch.</p>
+        </div>
+      </section>
+
+      <section class="ticker" aria-label="Zaakdetails">
+        <span>Spelregel: geen foto, geen praatjes</span>
+        <span>Locatie: nieuw Brabants huis, snacktafel, badkuip, alles nat</span>
+        <span>Kids-proof: de tweeling mag ook mee zoeken, maar geen eend opeten</span>
+      </section>
+
+      <section class="panel" id="hunt">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Eendenlijst</p>
+            <h2>Vink de gevonden eenden af</h2>
+          </div>
+          <div class="controls" role="group" aria-label="Filter eenden">
+            <button class="chip active" data-filter="all" type="button">Alle</button>
+            <button class="chip" data-filter="missing" type="button">Nog zoek</button>
+            <button class="chip" data-filter="found" type="button">Gevonden</button>
+          </div>
+        </div>
+        <p class="mode-banner" id="modeBanner">Publieke jachtstand. Iedereen mag een eend vinden, ook de tweeling. Alleen met kwakbewijs. Geen foto? Dan hebde niks, jonge.</p>
+        <div class="tools">
+          <label class="search">
+            <span>Zoek</span>
+            <input id="searchInput" type="search" placeholder="Naam, nummer, snaterprofiel of Brabants bijdehand gedrag" />
+          </label>
+        </div>
+        <div class="bear-grid" id="bearGrid"></div>
+      </section>
+
+      <section class="evidence" id="bewijs">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Gevonden eenden</p>
+            <h2>Kwakbewijs</h2>
+          </div>
+          <p class="section-note">
+            Voor als iemand later beweert dat “die eend daar al stond toen Bram en Kayleigh de sleutel kregen”.
+          </p>
+        </div>
+        <a class="back-to-list" href="#hunt">Terug naar de lijst met 100 eenden</a>
+        <img src="./assets/real-ducks/img_2582.jpg" alt="Echte serie van 100 eendjes" />
+      </section>
+
+      <section class="video-panel duckwall" id="poster">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Foto's en sfeer</p>
+            <h2>Eendenbeelden</h2>
+          </div>
+          <a class="back-to-list" href="#hunt">Terug naar de lijst met 100 eenden</a>
+        </div>
+        <div class="duck-mosaic" aria-label="Sfeerbeelden van eenden">
+          <img src="./assets/real-ducks/img_2583.jpg" alt="Echte eendenserie detailfoto" />
+          <img src="./assets/real-ducks/img_2584.jpg" alt="Echte eendenserie detailfoto" />
+          <img src="./assets/real-ducks/img_2585.jpg" alt="Echte eendenserie detailfoto" />
+          <img src="./assets/real-ducks/img_2586.jpg" alt="Echte eendenserie detailfoto" />
+          <img src="./assets/real-ducks/img_2587.jpg" alt="Echte eendenserie detailfoto" />
+          <img src="./assets/real-ducks/img_2588.jpg" alt="Echte eendenserie detailfoto" />
+          <img src="./assets/real-ducks/img_2589.jpg" alt="Echte eendenserie detailfoto" />
+          <img src="./assets/real-ducks/img_2590.jpg" alt="Echte eendenserie detailfoto" />
+        </div>
+      </section>
+    </main>
+
+    <template id="bearCardTemplate">
+      <article class="bear-card">
+        <button class="image-button" type="button">
+          <span class="duck-token" aria-hidden="true">
+            <span class="duck-initials"></span>
+          </span>
+          <span class="badge"></span>
+        </button>
+        <p class="bottom-number"></p>
+        <div class="bear-body">
+          <label class="field-label">
+            <span>Naam</span>
+            <textarea class="name-input" rows="1" aria-label="Naam van eend"></textarea>
+          </label>
+          <section class="persona-block" aria-label="Persona en dossier">
+            <span>Persona</span>
+            <p class="story-text"></p>
+          </section>
+          <label class="found-toggle">
+            <input type="checkbox" />
+            <span>Gevonden</span>
+          </label>
+          <section class="proof-block" aria-label="Kwakbewijs">
+            <span>Kwakbewijs</span>
+            <p class="proof-target"></p>
+            <button class="proof-image-button" type="button">
+              <img class="proof-image" alt="" />
+              <strong class="proof-stamp"></strong>
+            </button>
+            <p class="proof-empty">Nog geen kwakbewijs. Maak een foto waarop het nummer onderop de eend zichtbaar is.</p>
+            <label class="proof-upload">
+              <span>Kwakbewijs uploaden</span>
+              <input class="proof-input" type="file" accept="image/*" />
+            </label>
+          </section>
+          <label class="field-label note-field">
+            <span>Vindplaatsnotitie</span>
+            <textarea class="note-input" rows="3" aria-label="Notitie bij eend" placeholder="Vindplaats, smoes, kwakgeluid of Brabants commentaar..." ></textarea>
+          </label>
+        </div>
+      </article>
+    </template>
+
+    <dialog id="bearDialog">
+      <button class="close" type="button" aria-label="Sluiten">x</button>
+      <img id="dialogImage" alt="" />
+      <h3 id="dialogTitle"></h3>
+      <p id="dialogText"></p>
+    </dialog>
+
+    <dialog id="shareDialog">
+      <button class="close share-close" type="button" aria-label="Sluiten">x</button>
+      <div class="share-panel">
+        <p class="kicker">Kwakbericht klaar, houdoe</p>
+        <h3 id="shareTitle">Eend gevonden</h3>
+        <p id="shareIntro">Automatische update klaar voor de vriendengroep.</p>
+        <textarea id="shareText" rows="9" readonly aria-label="WhatsApp update tekst"></textarea>
+        <div class="share-actions">
+          <button class="button primary" id="copyShareButton" type="button">Kopieer tekst</button>
+          <a class="button ghost" id="whatsappShareLink" target="_blank" rel="noreferrer">Open WhatsApp</a>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="proofDialog">
+      <button class="close proof-close" type="button" aria-label="Sluiten">x</button>
+      <div class="share-panel">
+        <p class="kicker">Eerst bewijs, dan worstenbrood</p>
+        <h3 id="proofDialogTitle">Kwakbewijs uploaden</h3>
+        <p id="proofDialogText">Maak of kies een foto van de gevonden eend waarop het nummer onderop duidelijk zichtbaar is. Pas daarna mag deze verdachte officieel op gevonden.</p>
+        <label class="proof-upload proof-dialog-upload">
+          <span>Kwakbewijs</span>
+          <input id="proofDialogInput" type="file" accept="image/*" />
+        </label>
+      </div>
+    </dialog>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
