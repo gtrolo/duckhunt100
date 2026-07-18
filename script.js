@@ -335,6 +335,7 @@ let state = createFreshState();
 let saveTimer;
 let isSaving = false;
 let pendingProofBearId = 0;
+let editingNameBearId = 0;
 let adminPin = getAdminPin();
 let isAdmin = false;
 
@@ -421,7 +422,10 @@ async function verifyPin(pin) {
 }
 
 async function requestNameEditAccess(bearId) {
-  if (isAdmin) return true;
+  if (isAdmin) {
+    editingNameBearId = bearId;
+    return true;
+  }
   const pin = prompt("Wachtwoord om namen aan te passen. Hint: 4 letters, naam van de maker van deze app.");
   if (!pin) {
     document.activeElement?.blur();
@@ -438,6 +442,7 @@ async function requestNameEditAccess(bearId) {
     adminPin = cleanPin(pin);
     localStorage.setItem(ADMIN_STORAGE_KEY, adminPin);
     isAdmin = true;
+    editingNameBearId = bearId;
     setModeBanner("Naam-edit aan. Gij moogt de eenden nu hernoemen, maar hou het een beetje gezellig lomp.", "success");
     render();
     setTimeout(() => document.querySelector(`#${bearAnchor(bearId)} .name-input`)?.focus(), 0);
@@ -587,6 +592,7 @@ function render() {
     card.dataset.id = bear.id;
     card.classList.toggle("is-found", bear.found);
     card.classList.toggle("is-view-only", !isAdmin);
+    card.classList.toggle("is-name-editing", isAdmin && editingNameBearId === bear.id);
     proofBlock.hidden = !bear.found;
     noteField.hidden = !bear.found;
     proofImageButton.hidden = !bear.proofImage;
@@ -638,16 +644,19 @@ function render() {
       queueSave();
     });
 
+    namePreview.addEventListener("click", async () => {
+      if (!(await requestNameEditAccess(bear.id))) return;
+      editingNameBearId = bear.id;
+      render();
+      setTimeout(() => document.querySelector(`#${bearAnchor(bear.id)} .name-input`)?.focus(), 0);
+    });
+
     noteInput.addEventListener("input", () => {
       if (!isAdmin) return;
       updateBear(bear.id, { note: noteInput.value });
       autoGrow(noteInput);
       applyFilters();
       queueSave();
-    });
-
-    nameInput.addEventListener("focus", () => {
-      if (!isAdmin) requestNameEditAccess(bear.id);
     });
 
     noteInput.addEventListener("focus", () => {
