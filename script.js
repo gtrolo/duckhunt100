@@ -7,7 +7,7 @@ const duckNames = [
   "Kayleigh Khole",
   "Claudia Clitoris",
   "Cintha Cybersex",
-  "Rolo Redcarpet",
+  "Rolo Rammenmaar",
   "Dynamic Dennis",
   "Dorith Divine",
   "Suus Slagijzer",
