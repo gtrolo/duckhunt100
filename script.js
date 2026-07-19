@@ -209,6 +209,9 @@ const duckRealNames = [
   "Vera"
 ];
 
+const quipGuestNames = duckRealNames.slice(0, 30);
+const quipGuestName = quipGuestNames[Math.floor(Math.random() * quipGuestNames.length)];
+
 const duckCrimes = [
   "jat kruimels alsof het gemeentebelasting is en kijkt er nog trots bij ook",
   "roept 'kwak' alsof heel de straat daarom gevraagd heeft",
@@ -259,27 +262,27 @@ const defaultStories = Array.from({ length: BEAR_COUNT }, (_, index) => {
 });
 
 const quips = [
-  "0 gevonden. De eenden hebben nog kapsones. Bram en Kayleigh hun dinerbon zit vastgebonden in de voorraadkast.",
-  "5 gevonden. De tweeling draait warm, volwassenen beginnen al verdacht te hijgen.",
-  "10 gevonden. Een tiende binnen. Nog geen dinerbon, wel licht overdreven trots.",
-  "15 gevonden. De eerste eenden zingen. Niet mooi, wel bruikbaar bewijs.",
-  "20 gevonden. Dit begint op recherchewerk te lijken, maar dan met meer bukken.",
-  "25 gevonden. Kwart binnen. De bon hoort geritsel, maar mag nog niet naar buiten.",
-  "30 gevonden. Bram mag optimistisch kijken. Kayleigh nog niet te hard juichen.",
-  "35 gevonden. Er zit ritme in. De eenden verliezen zichtbaar praatjes.",
-  "40 gevonden. Bijna halverwege. De vrienden zijn irritant, maar effectief.",
-  "45 gevonden. De tweeling ruikt plastic paniek. Doorpakken.",
-  "50 gevonden. Helft gepakt. De dinerbon krijgt water, maar nog geen vrijheid.",
-  "55 gevonden. Nu wordt het serieus. Iedere plantenbak is officieel verdacht.",
-  "60 gevonden. Zestig ducks in de tas. Brabantse inburgering gaat prima.",
-  "65 gevonden. De eenden duiken weg. Laf gedrag, gewoon zoeken.",
-  "70 gevonden. Nog twintig tot de bon los mag. De laatste dertig doen stoer.",
-  "75 gevonden. Driekwart binnen. Bram en Kayleigh mogen alvast het menu fantaseren.",
-  "80 gevonden. De bon ziet daglicht in de verte. Niet verslappen.",
-  "85 gevonden. Vijf te gaan tot vrijlating. Iedereen kalm blijven, behalve de eenden.",
-  "90 gevonden. Dinerbon vrijgelaten. Laatste tien zijn bonus voor eeuwige roem.",
-  "95 gevonden. Bonusronde. Niemand hoeft dit te doen, maar stoppen is nu ook slap.",
-  "100 gevonden. Duckhunt klaar. Bon vrij, huis ingewijd, houdoe."
+  `0 gevonden. ${quipGuestName} komt wel mee zoeken als ge het lief vraagt, maar verwacht geen wonderen.`,
+  `5 gevonden. ${quipGuestName} zegt dat dit tempo "best aardig" is, dus nu niet naast uw schoenen lopen.`,
+  `10 gevonden. Een tiende binnen. Dennis heeft het druk, hem nie bellen voor zoiets kleins.`,
+  `15 gevonden. De eerste eenden zingen. Tim houdt van eendjes, bel voor hulp of juist absoluut niet.`,
+  `20 gevonden. Dit begint op recherchewerk te lijken, maar dan met meer bukken en minder waardigheid.`,
+  `25 gevonden. Kwart binnen. Suus wijst waarschijnlijk drie eenden aan voordat gij uw jas aan hebt.`,
+  `30 gevonden. Bram mag optimistisch kijken. Kayleigh nog niet te hard juichen, straks horen ze het.`,
+  `35 gevonden. Er zit ritme in. ${quipGuestName} noemt dit "een beweging", niemand weet waarom.`,
+  `40 gevonden. Bijna halverwege. De vrienden zijn irritant, maar helaas ook effectief.`,
+  `45 gevonden. De tweeling ruikt plastic paniek. Doorpakken voordat iemand koffie gaat drinken.`,
+  `50 gevonden. Helft gepakt. ${quipGuestName} doet alsof dit altijd al het plan was.`,
+  `55 gevonden. Nu wordt het serieus. Iedere plantenbak is officieel verdacht.`,
+  `60 gevonden. Zestig ducks in de tas. Brabantse inburgering gaat prima, gek genoeg.`,
+  `65 gevonden. De eenden duiken weg. Laf gedrag, gewoon zoeken.`,
+  `70 gevonden. De laatste dertig doen ineens stoer. Raar, voor plastic met een snavel.`,
+  `75 gevonden. Driekwart binnen. ${quipGuestName} mag alvast heel dramatisch "bijna" roepen.`,
+  `80 gevonden. Niet verslappen. Dit is precies waar mensen ineens onder kussens gaan onderhandelen.`,
+  `85 gevonden. Iedereen kalm blijven, behalve de eenden. Die hebben terecht stress.`,
+  `90 gevonden. Hoofdmissie gehaald. Laatste tien zijn bonus voor mensen met karakter en knieën.`,
+  `95 gevonden. Bonusronde. Niemand hoeft dit te doen, maar stoppen is nu ook slap.`,
+  `100 gevonden. Duckhunt klaar. Huis ingewijd, eenden vernederd, houdoe.`
 ];
 
 const heroQuotes = [
