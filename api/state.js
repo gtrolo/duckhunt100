@@ -201,7 +201,7 @@ async function writeProofUpdate(update) {
   if (update.deleteProof) {
     proofImageToDelete = nextProofImage;
     nextProofImage = "";
-    nextFound = false;
+    nextFound = true;
   } else {
     if (typeof update.proofDataUrl !== "string" || !update.proofDataUrl) {
       throw new Error("Geen nieuwe kwakbewijsfoto ontvangen.");
@@ -371,7 +371,7 @@ function sanitizeBears(input) {
       const proofDataUrl = typeof bear.proofDataUrl === "string" ? bear.proofDataUrl : undefined;
       return {
         id,
-        found: Boolean(bear.found && (proofImage || proofDataUrl)),
+        found: Boolean(bear.found),
         name: typeof bear.name === "string" ? bear.name.slice(0, 80) : undefined,
         note: typeof bear.note === "string" ? bear.note.slice(0, 400) : "",
         proofImage,

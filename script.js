@@ -542,7 +542,7 @@ function mergeSharedState(sharedState) {
     const proofImage = typeof sharedBear.proofImage === "string" ? sharedBear.proofImage : "";
     return {
       ...bear,
-      found: Boolean(sharedBear.found && proofImage),
+      found: Boolean(sharedBear.found),
       name: typeof sharedBear.name === "string" && sharedBear.name.trim() ? sharedBear.name : bear.name,
       note: typeof sharedBear.note === "string" ? sharedBear.note : "",
       proofImage
