@@ -1,7 +1,7 @@
 const BEAR_COUNT = 100;
 const ADMIN_STORAGE_KEY = "duckhunt100-admin-pin-v1";
 const PUBLIC_URL = "https://duckhunt100.vercel.app";
-const PROOF_PASSWORD_LABEL = "rolo";
+const PROOF_PASSWORD_LABEL = "bramkayleigh";
 
 const duckNames = [
   "Bram Batsbak",

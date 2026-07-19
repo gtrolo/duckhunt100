@@ -6,7 +6,7 @@ const owner = cleanEnv("GITHUB_OWNER", "gtrolo");
 const repo = cleanEnv("GITHUB_REPO", "duckhunt100");
 const branch = cleanEnv("GITHUB_BRANCH", "main");
 const statePath = "data/state.json";
-const proofPassword = cleanPin(process.env.PROOF_PASSWORD || "rolo");
+const proofPassword = cleanPin(process.env.PROOF_PASSWORD || "bramkayleigh");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
