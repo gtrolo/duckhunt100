@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T06:44:35.705Z",
+  "updatedAt": "2026-07-19T06:44:48.669Z",
   "bears": [
     {
       "id": 1,
@@ -94,10 +94,10 @@
     },
     {
       "id": 14,
-      "found": true,
+      "found": false,
       "name": "Midnight Martin",
       "note": "",
-      "proofImage": "/assets/proofs/duck-014.jpg"
+      "proofImage": ""
     },
     {
       "id": 15,
