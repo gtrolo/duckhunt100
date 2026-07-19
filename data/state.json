@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T06:41:32.000Z",
+  "updatedAt": "2026-07-19T06:41:40.027Z",
   "bears": [
     {
       "id": 1,
@@ -157,10 +157,10 @@
     },
     {
       "id": 23,
-      "found": true,
+      "found": false,
       "name": "Siren Steffie",
       "note": "",
-      "proofImage": "/assets/proofs/duck-023.jpg"
+      "proofImage": ""
     },
     {
       "id": 24,
