@@ -236,10 +236,10 @@
       </div>
     </dialog>
 
-    <dialog id="proofDialog">
+    <dialog class="proof-modal" id="proofDialog">
       <button class="close proof-close" type="button" aria-label="Sluiten">x</button>
-      <div class="share-panel">
-        <p class="kicker">Eerst bewijs, dan worstenbrood</p>
+      <div class="proof-modal-panel">
+        <p class="kicker" id="proofDialogKicker">Eerst bewijs, dan worstenbrood</p>
         <h3 id="proofDialogTitle">Kwakbewijs uploaden</h3>
         <p id="proofDialogText">Maak of kies een foto van de gevonden eend waarop het nummer onderop duidelijk zichtbaar is. Pas daarna mag deze verdachte officieel op gevonden.</p>
         <img class="proof-dialog-image" id="proofDialogImage" alt="" />
@@ -248,7 +248,7 @@
           <input id="proofDialogInput" type="file" accept="image/*" />
         </label>
         <div class="proof-dialog-actions">
-          <button class="button primary" id="proofDialogUploadButton" type="button">Kwakbewijs aanpassen</button>
+          <button class="button primary" id="proofDialogUploadButton" type="button">Foto kiezen</button>
           <button class="button danger" id="proofDialogDeleteButton" type="button">Bewijs verwijderen</button>
         </div>
       </div>

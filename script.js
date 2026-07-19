@@ -326,6 +326,7 @@ const copyShareButton = document.querySelector("#copyShareButton");
 const whatsappShareLink = document.querySelector("#whatsappShareLink");
 const closeShareDialog = document.querySelector(".share-close");
 const proofDialog = document.querySelector("#proofDialog");
+const proofDialogKicker = document.querySelector("#proofDialogKicker");
 const proofDialogTitle = document.querySelector("#proofDialogTitle");
 const proofDialogText = document.querySelector("#proofDialogText");
 const proofDialogImage = document.querySelector("#proofDialogImage");
@@ -719,12 +720,14 @@ function requestProofPassword(message) {
 function openProofDialog(bear) {
   pendingProofBearId = bear.id;
   const hasProof = Boolean(bear.proofImage);
+  proofDialog.dataset.variant = hasProof ? "found" : "new";
   setModeBanner(
     hasProof
       ? `Kwakbewijs beheren voor #${String(bear.id).padStart(3, "0")}. Aanpassen of verwijderen kan met wachtwoord ${PROOF_PASSWORD_LABEL}.`
       : `Kwakbewijs nodig voor #${String(bear.id).padStart(3, "0")}. Foto van het nummer onderop, dan pas gevonden. Simpel zat.`,
     hasProof ? "info" : "saving"
   );
+  proofDialogKicker.textContent = hasProof ? "Al gevangen, bewijs in beheer" : "Nieuwe vondst, eerst bewijs";
   proofDialogTitle.textContent = hasProof
     ? `Kwakbewijs beheren voor #${String(bear.id).padStart(3, "0")} ${bear.name}`
     : `Kwakbewijs voor #${String(bear.id).padStart(3, "0")} ${bear.name}`;
@@ -740,8 +743,9 @@ function openProofDialog(bear) {
     proofDialogImage.alt = "";
   }
   proofDialogImage.hidden = !hasProof;
-  proofDialog.querySelector(".proof-dialog-upload").hidden = hasProof;
-  proofDialogUploadButton.hidden = !hasProof;
+  proofDialog.querySelector(".proof-dialog-upload").hidden = true;
+  proofDialogUploadButton.hidden = false;
+  proofDialogUploadButton.textContent = hasProof ? "Kwakbewijs aanpassen" : "Foto kiezen";
   proofDialogDeleteButton.hidden = !hasProof;
   proofDialog.showModal();
 }
