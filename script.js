@@ -369,6 +369,7 @@ const hintDialogTitle = document.querySelector("#hintDialogTitle");
 const hintDialogText = document.querySelector("#hintDialogText");
 const hintDialogIcon = document.querySelector("#hintDialogIcon");
 const hintDialogImage = document.querySelector("#hintDialogImage");
+const hintDialogNameInput = document.querySelector("#hintDialogNameInput");
 const hintDialogTextarea = document.querySelector("#hintDialogTextarea");
 const hintDialogInput = document.querySelector("#hintDialogInput");
 const hintDialogSaveButton = document.querySelector("#hintDialogSaveButton");
@@ -410,6 +411,7 @@ function createFreshState() {
 function createFreshHints() {
   return Array.from({ length: 12 }, (_, index) => ({
     id: index + 1,
+    name: "",
     text: "",
     image: ""
   }));
@@ -527,6 +529,7 @@ function mergeSharedState(sharedState) {
     if (!sharedHint) return hint;
     return {
       ...hint,
+      name: typeof sharedHint.name === "string" ? sharedHint.name : "",
       text: typeof sharedHint.text === "string" ? sharedHint.text : "",
       image: typeof sharedHint.image === "string" ? sharedHint.image : ""
     };
@@ -793,6 +796,7 @@ function renderHints() {
     const imageButton = card.querySelector(".hint-image-button");
     const image = card.querySelector(".hint-card-image");
     const badge = card.querySelector(".hint-badge");
+    const author = card.querySelector(".hint-author");
     const text = card.querySelector(".hint-text");
     const editButton = card.querySelector(".hint-edit-button");
     const hasText = Boolean(hint.text.trim());
@@ -802,6 +806,9 @@ function renderHints() {
     card.classList.toggle("is-empty", !hasText && !hasImage);
     card.classList.toggle("has-image", hasImage);
     badge.textContent = `H${String(hint.id).padStart(2, "0")}`;
+    author.textContent = hasText || hasImage
+      ? `Van ${hint.name.trim() || "anonieme verstopper"}`
+      : "Nog geen verstopper";
     text.textContent = hasText ? hint.text : "Nog geen hint. Hier mag een verstopper iets verdachts droppen.";
     editButton.textContent = hasText || hasImage ? "Bekijken" : "Hint plaatsen";
     imageButton.setAttribute("aria-label", `Bekijk hint ${hint.id}`);
@@ -988,6 +995,7 @@ function openHintDialog(hint) {
   hintDialogText.textContent = hasContent
     ? "Aanpassen of verwijderen kan met het hint-wachtwoord."
     : "Drop een cryptische tekst of foto.";
+  hintDialogNameInput.value = hint.name || "";
   hintDialogTextarea.value = hint.text || "";
   hintDialogInput.value = "";
   hintDialogImage.onerror = () => {
@@ -1027,12 +1035,18 @@ async function chooseHintImage(file) {
 async function saveHintFromDialog() {
   const hint = hints.find((item) => item.id === pendingHintId);
   if (!hint) return;
+  const name = hintDialogNameInput.value.trim();
   const text = hintDialogTextarea.value.trim();
   const hasExistingContent = hintDialog.dataset.existing === "true";
   const password = hasExistingContent
     ? requestProofPassword("Wachtwoord om deze hint aan te passen:")
     : "";
   if (hasExistingContent && !password) return;
+  if (!name) {
+    alert("Naam erbij graag. Anders is het laf anoniem gehint.");
+    hintDialogNameInput.focus();
+    return;
+  }
   if (!text && !pendingHintImageDataUrl && !(hint.image && !pendingHintDeleteImage)) {
     alert("Geen hint ingevuld. Tekst of foto, anders is het gewoon stilte met wifi.");
     return;
@@ -1046,6 +1060,7 @@ async function saveHintFromDialog() {
       body: JSON.stringify({
         hintUpdate: {
           id: pendingHintId,
+          name,
           text,
           imageDataUrl: pendingHintImageDataUrl,
           deleteImage: pendingHintDeleteImage,
@@ -1092,7 +1107,7 @@ async function deleteHintFromDialog() {
     if (!response.ok) throw new Error(body.error || "Hint verwijderen mislukt.");
     proofImageVersion = encodeURIComponent(body.updatedAt || new Date().toISOString());
     hintImagePreviews.delete(hint.id);
-    hints = hints.map((item) => item.id === hint.id ? { ...item, text: "", image: "" } : item);
+    hints = hints.map((item) => item.id === hint.id ? { ...item, name: "", text: "", image: "" } : item);
     state = mergeSharedState(body);
     hintDialog.close();
     pendingHintId = 0;
@@ -1190,8 +1205,9 @@ async function saveSharedState() {
             proofImage,
             proofDataUrl
           })),
-          hints: hints.map(({ id, text, image }) => ({
+          hints: hints.map(({ id, name, text, image }) => ({
             id,
+            name,
             text,
             image
           }))
