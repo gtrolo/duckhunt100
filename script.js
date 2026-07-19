@@ -342,6 +342,7 @@ let editingNameBearId = 0;
 let adminPin = getAdminPin();
 let isAdmin = false;
 let proofImageVersion = "";
+const proofImagePreviews = new Map();
 
 function isLocalHost() {
   return window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
@@ -488,6 +489,10 @@ function proofImageUrl(path) {
   return `${path}${separator}v=${proofImageVersion || Date.now()}`;
 }
 
+function proofImageSource(bear) {
+  return proofImagePreviews.get(bear.id) || proofImageUrl(bear.proofImage);
+}
+
 function initialsForName(name) {
   return name
     .replace(/^Duck\s+#\d+\s+-\s+/i, "")
@@ -602,7 +607,7 @@ function render() {
     card.classList.toggle("is-name-editing", isAdmin && editingNameBearId === bear.id);
     noteField.hidden = true;
     if (bear.proofImage) {
-      cardProofImage.src = proofImageUrl(bear.proofImage);
+      cardProofImage.src = proofImageSource(bear);
       cardProofImage.alt = `Kwakbewijs voor ${bear.name}`;
     } else {
       cardProofImage.removeAttribute("src");
@@ -732,7 +737,7 @@ function openProofDialog(bear) {
   proofDialogText.textContent = bear.story;
   proofDialogInput.value = "";
   if (hasProof) {
-    proofDialogImage.src = proofImageUrl(bear.proofImage);
+    proofDialogImage.src = proofImageSource(bear);
     proofDialogImage.alt = `Kwakbewijs voor ${bear.name}`;
   } else {
     proofDialogImage.removeAttribute("src");
@@ -805,6 +810,7 @@ async function deleteProofForBear(bear, proofPassword) {
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || "Kwakbewijs verwijderen mislukt.");
     proofImageVersion = encodeURIComponent(body.updatedAt || new Date().toISOString());
+    proofImagePreviews.delete(bear.id);
     state = mergeSharedState(body);
     setModeBanner("Kwakbewijs verwijderd. De eend staat weer op zoek.", "success");
   } catch (error) {
@@ -937,11 +943,13 @@ async function saveProofSubmission(id, proofDataUrl, proofPassword = "") {
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || "Bewijs indienen mislukt.");
     proofImageVersion = encodeURIComponent(body.updatedAt || new Date().toISOString());
+    proofImagePreviews.set(id, proofDataUrl);
     state = mergeSharedState(body);
     setModeBanner("Kwakbewijs geaccepteerd. Nummer onderop gezien? Dan doorpakken.", "success");
     return state.find((item) => item.id === id);
   } catch (error) {
     if (!isLocalHost()) throw error;
+    proofImagePreviews.set(id, proofDataUrl);
     updateBear(id, {
       found: true,
       proofImage: proofDataUrl
