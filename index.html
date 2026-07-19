@@ -207,16 +207,6 @@
             <input type="checkbox" />
             <span>Gevonden</span>
           </label>
-          <section class="proof-block" aria-label="Kwakbewijs beheren">
-            <p class="proof-target"></p>
-            <div class="proof-actions">
-              <label class="proof-upload">
-                <span>Kwakbewijs uploaden</span>
-                <input class="proof-input" type="file" accept="image/*" />
-              </label>
-              <button class="proof-delete" type="button">Bewijs verwijderen</button>
-            </div>
-          </section>
           <label class="field-label note-field">
             <span>Vindplaatsnotitie</span>
             <textarea class="note-input" rows="3" aria-label="Notitie bij eend" placeholder="Vindplaats, smoes, kwakgeluid of Brabants commentaar..." ></textarea>
@@ -252,10 +242,15 @@
         <p class="kicker">Eerst bewijs, dan worstenbrood</p>
         <h3 id="proofDialogTitle">Kwakbewijs uploaden</h3>
         <p id="proofDialogText">Maak of kies een foto van de gevonden eend waarop het nummer onderop duidelijk zichtbaar is. Pas daarna mag deze verdachte officieel op gevonden.</p>
+        <img class="proof-dialog-image" id="proofDialogImage" alt="" />
         <label class="proof-upload proof-dialog-upload">
           <span>Kwakbewijs</span>
           <input id="proofDialogInput" type="file" accept="image/*" />
         </label>
+        <div class="proof-dialog-actions">
+          <button class="button primary" id="proofDialogUploadButton" type="button">Kwakbewijs aanpassen</button>
+          <button class="button danger" id="proofDialogDeleteButton" type="button">Bewijs verwijderen</button>
+        </div>
       </div>
     </dialog>
 

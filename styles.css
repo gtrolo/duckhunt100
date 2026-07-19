@@ -928,18 +928,6 @@ h2 {
   font-size: clamp(1.2rem, 7vw, 2rem);
 }
 
-.bear-card.is-direct-hit .found-toggle {
-  min-height: 46px;
-  padding: 8px 12px;
-  border-radius: 16px;
-  font-size: 0.86rem;
-}
-
-.bear-card.is-direct-hit .found-toggle input {
-  width: 24px;
-  height: 24px;
-}
-
 .badge {
   position: absolute;
   right: 7px;
@@ -1025,6 +1013,25 @@ h2 {
   display: grid;
   grid-template-columns: 1fr;
   gap: 7px;
+}
+
+.proof-dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.proof-dialog-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 18px;
+}
+
+.proof-dialog-image[hidden] {
+  display: none;
 }
 
 .proof-delete {

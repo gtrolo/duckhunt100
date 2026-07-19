@@ -328,7 +328,10 @@ const closeShareDialog = document.querySelector(".share-close");
 const proofDialog = document.querySelector("#proofDialog");
 const proofDialogTitle = document.querySelector("#proofDialogTitle");
 const proofDialogText = document.querySelector("#proofDialogText");
+const proofDialogImage = document.querySelector("#proofDialogImage");
 const proofDialogInput = document.querySelector("#proofDialogInput");
+const proofDialogUploadButton = document.querySelector("#proofDialogUploadButton");
+const proofDialogDeleteButton = document.querySelector("#proofDialogDeleteButton");
 const closeProofDialog = document.querySelector(".proof-close");
 
 let activeFilter = "all";
@@ -555,11 +558,6 @@ function render() {
     const storyText = card.querySelector(".story-text");
     const noteInput = card.querySelector(".note-input");
     const noteField = card.querySelector(".note-field");
-    const proofBlock = card.querySelector(".proof-block");
-    const proofTarget = card.querySelector(".proof-target");
-    const proofUpload = card.querySelector(".proof-upload");
-    const proofInput = card.querySelector(".proof-input");
-    const proofDelete = card.querySelector(".proof-delete");
 
     card.id = bearAnchor(bear.id);
     imageButton.setAttribute("aria-label", `Bekijk eend ${bear.id}: ${bear.name}`);
@@ -593,8 +591,7 @@ function render() {
     card.classList.toggle("has-proof", Boolean(bear.proofImage));
     card.classList.toggle("is-view-only", !isAdmin);
     card.classList.toggle("is-name-editing", isAdmin && editingNameBearId === bear.id);
-    proofBlock.hidden = !bear.found;
-    noteField.hidden = !bear.found;
+    noteField.hidden = true;
     if (bear.proofImage) {
       cardProofImage.src = bear.proofImage;
       cardProofImage.alt = `Kwakbewijs voor ${bear.name}`;
@@ -602,11 +599,6 @@ function render() {
       cardProofImage.removeAttribute("src");
       cardProofImage.alt = "";
     }
-    proofTarget.textContent = bear.proofImage
-      ? `Kwakbewijs staat op de eendfoto. Wijzigen of verwijderen kan met wachtwoord ${PROOF_PASSWORD_LABEL}.`
-      : `Kwakbewijs voor #${String(bear.id).padStart(3, "0")} - ${bear.name}: fotografeer het nummer onderop.`;
-    proofUpload.querySelector("span").textContent = bear.proofImage ? "Kwakbewijs aanpassen" : "Kwakbewijs uploaden";
-    proofDelete.hidden = !bear.proofImage;
 
     checkbox.addEventListener("change", () => {
       const wasFound = bear.found;
@@ -621,6 +613,12 @@ function render() {
         openProofDialog(bear);
         return;
       }
+    });
+
+    checkbox.addEventListener("click", (event) => {
+      if (!bear.found) return;
+      event.preventDefault();
+      openProofDialog(state.find((item) => item.id === bear.id) || bear);
     });
 
     nameInput.addEventListener("input", () => {
@@ -666,41 +664,12 @@ function render() {
       if (!isAdmin) denyBearTheft();
     });
 
-    proofInput.addEventListener("change", async () => {
-      const file = proofInput.files?.[0];
-      if (!file) return;
-
-      try {
-        const wasFound = bear.found;
-        const savedBear = await uploadProofForBear(bear, file);
-        render();
-        if (!wasFound) {
-          showFoundSharePopup(savedBear);
-        }
-      } catch (error) {
-        rejectBadPhoto(error.message);
-      } finally {
-        proofInput.value = "";
-      }
-    });
-
-    proofDelete.addEventListener("click", async () => {
-      const currentBear = state.find((item) => item.id === bear.id) || bear;
-      if (!currentBear.proofImage) return;
-      const proofPassword = requestProofPassword("Wachtwoord om dit kwakbewijs te verwijderen:");
-      if (!proofPassword) return;
-      if (!window.confirm(`Kwakbewijs voor #${String(bear.id).padStart(3, "0")} verwijderen?`)) return;
-
-      try {
-        await deleteProofForBear(currentBear, proofPassword);
-        render();
-      } catch (error) {
-        rejectBadPhoto(error.message);
-      }
-    });
-
     imageButton.addEventListener("click", () => {
       const currentBear = state.find((item) => item.id === bear.id) || bear;
+      if (currentBear.found) {
+        openProofDialog(currentBear);
+        return;
+      }
       openBearDetail(currentBear);
     });
 
@@ -749,10 +718,31 @@ function requestProofPassword(message) {
 
 function openProofDialog(bear) {
   pendingProofBearId = bear.id;
-  setModeBanner(`Kwakbewijs nodig voor #${String(bear.id).padStart(3, "0")}. Foto van het nummer onderop, dan pas gevonden. Simpel zat.`, "saving");
-  proofDialogTitle.textContent = `Kwakbewijs voor #${String(bear.id).padStart(3, "0")} ${bear.name}`;
-  proofDialogText.textContent = `Draai de eend om en maak een foto waarop nummer ${String(bear.id).padStart(3, "0")} onderop duidelijk zichtbaar is. Geen nummer, geen worstenbrood. Klaar.`;
+  const hasProof = Boolean(bear.proofImage);
+  setModeBanner(
+    hasProof
+      ? `Kwakbewijs beheren voor #${String(bear.id).padStart(3, "0")}. Aanpassen of verwijderen kan met wachtwoord ${PROOF_PASSWORD_LABEL}.`
+      : `Kwakbewijs nodig voor #${String(bear.id).padStart(3, "0")}. Foto van het nummer onderop, dan pas gevonden. Simpel zat.`,
+    hasProof ? "info" : "saving"
+  );
+  proofDialogTitle.textContent = hasProof
+    ? `Kwakbewijs beheren voor #${String(bear.id).padStart(3, "0")} ${bear.name}`
+    : `Kwakbewijs voor #${String(bear.id).padStart(3, "0")} ${bear.name}`;
+  proofDialogText.textContent = hasProof
+    ? "Deze eend is al gevonden. Wil je het bewijs aanpassen of verwijderen, dan vraagt de app om het wachtwoord."
+    : `Draai de eend om en maak een foto waarop nummer ${String(bear.id).padStart(3, "0")} onderop duidelijk zichtbaar is. Geen nummer, geen worstenbrood. Klaar.`;
   proofDialogInput.value = "";
+  if (hasProof) {
+    proofDialogImage.src = bear.proofImage;
+    proofDialogImage.alt = `Kwakbewijs voor ${bear.name}`;
+  } else {
+    proofDialogImage.removeAttribute("src");
+    proofDialogImage.alt = "";
+  }
+  proofDialogImage.hidden = !hasProof;
+  proofDialog.querySelector(".proof-dialog-upload").hidden = hasProof;
+  proofDialogUploadButton.hidden = !hasProof;
+  proofDialogDeleteButton.hidden = !hasProof;
   proofDialog.showModal();
 }
 
@@ -761,11 +751,14 @@ async function finishFoundWithProof(file) {
   if (!bear || !file) return;
 
   try {
+    const wasFound = bear.found;
     const savedBear = await uploadProofForBear(bear, file);
     proofDialog.close();
     pendingProofBearId = 0;
     render();
-    showFoundSharePopup(savedBear);
+    if (!wasFound) {
+      showFoundSharePopup(savedBear);
+    }
   } catch (error) {
     rejectBadPhoto(error.message);
   }
@@ -1084,6 +1077,27 @@ proofDialogInput.addEventListener("change", () => {
   const file = proofDialogInput.files?.[0];
   if (!file) return;
   finishFoundWithProof(file);
+});
+
+proofDialogUploadButton.addEventListener("click", () => {
+  proofDialogInput.click();
+});
+
+proofDialogDeleteButton.addEventListener("click", async () => {
+  const bear = state.find((item) => item.id === pendingProofBearId);
+  if (!bear?.proofImage) return;
+  const proofPassword = requestProofPassword("Wachtwoord om dit kwakbewijs te verwijderen:");
+  if (!proofPassword) return;
+  if (!window.confirm(`Kwakbewijs voor #${String(bear.id).padStart(3, "0")} verwijderen?`)) return;
+
+  try {
+    await deleteProofForBear(bear, proofPassword);
+    proofDialog.close();
+    pendingProofBearId = 0;
+    render();
+  } catch (error) {
+    rejectBadPhoto(error.message);
+  }
 });
 
 copyShareButton.addEventListener("click", async () => {
