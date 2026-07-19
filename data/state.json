@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T06:39:24.560Z",
+  "updatedAt": "2026-07-19T06:40:00.818Z",
   "bears": [
     {
       "id": 1,
@@ -164,10 +164,10 @@
     },
     {
       "id": 24,
-      "found": false,
+      "found": true,
       "name": "Kink Kelly",
       "note": "",
-      "proofImage": ""
+      "proofImage": "/assets/proofs/duck-024.jpg"
     },
     {
       "id": 25,
