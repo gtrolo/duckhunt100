@@ -417,7 +417,7 @@ h2 {
   grid-template-columns: 1fr;
   gap: 12px;
   align-items: center;
-  margin-top: auto;
+  margin: 0 0 16px;
   padding: 14px;
   color: var(--foam);
   background: rgba(8, 81, 99, 0.86);
