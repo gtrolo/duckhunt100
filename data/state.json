@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T06:41:15.604Z",
+  "updatedAt": "2026-07-19T06:41:32.000Z",
   "bears": [
     {
       "id": 1,
@@ -150,10 +150,10 @@
     },
     {
       "id": 22,
-      "found": true,
+      "found": false,
       "name": "Vamp Veronica",
       "note": "",
-      "proofImage": "/assets/proofs/duck-022.jpg"
+      "proofImage": ""
     },
     {
       "id": 23,
