@@ -808,9 +808,10 @@ function renderHints() {
     badge.textContent = `H${String(hint.id).padStart(2, "0")}`;
     author.textContent = hasText || hasImage
       ? `Van ${hint.name.trim() || "anonieme verstopper"}`
-      : "Nog geen verstopper";
-    text.textContent = hasText ? hint.text : "Nog geen hint. Hier mag een verstopper iets verdachts droppen.";
-    editButton.textContent = hasText || hasImage ? "Bekijken" : "Hint plaatsen";
+      : "";
+    text.textContent = hasText ? hint.text : "";
+    editButton.textContent = "Plaats hint";
+    editButton.hidden = hasText || hasImage;
     imageButton.setAttribute("aria-label", `Bekijk hint ${hint.id}`);
     image.onerror = () => {
       image.removeAttribute("src");

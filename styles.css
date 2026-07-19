@@ -948,6 +948,11 @@ h2 {
   padding: 10px;
 }
 
+.hint-card.is-empty .hint-body {
+  gap: 0;
+  padding: 8px;
+}
+
 .hint-author {
   min-height: 1.2em;
   margin: 0;
@@ -969,27 +974,28 @@ h2 {
   overflow-wrap: anywhere;
 }
 
-.hint-card.is-empty .hint-text {
-  color: var(--muted);
-  opacity: 0.78;
-}
-
+.hint-card.is-empty .hint-text,
 .hint-card.is-empty .hint-author {
-  color: var(--muted);
+  display: none;
 }
 
 .hint-edit-button {
   width: 100%;
-  min-height: 38px;
-  padding: 8px;
+  min-height: 30px;
+  padding: 6px 8px;
   color: var(--foam);
   background: var(--pool-deep);
   border: 0;
-  border-radius: 14px;
-  font-size: 0.68rem;
+  border-radius: 12px;
+  font-size: 0.62rem;
   font-weight: 950;
   text-transform: uppercase;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.hint-edit-button[hidden] {
+  display: none;
 }
 
 .hint-card:not(.is-empty) .hint-edit-button {
