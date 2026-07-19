@@ -660,8 +660,8 @@ function render() {
       queueSave();
     });
 
-    noteInput.addEventListener("focus", () => {
-      if (!isAdmin) denyBearTheft();
+    noteInput.addEventListener("focus", (event) => {
+      if (!isAdmin) denyBearTheft(event.currentTarget);
     });
 
     imageButton.addEventListener("click", () => {
@@ -690,10 +690,10 @@ function setModeBanner(text, kind = "info") {
   modeBanner.dataset.kind = kind;
 }
 
-function denyBearTheft() {
+function denyBearTheft(target) {
   const message = "Nee. Afblijven. Dossierredactie is voor Bram en Kayleigh hun eendenadministratie. Gij moogt zoeken, nie de geschiedenis verbouwen.";
+  target?.blur();
   setModeBanner(message, "warning");
-  alert(message);
 }
 
 function rejectBadPhoto(reason) {
