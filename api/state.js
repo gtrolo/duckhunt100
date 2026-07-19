@@ -6,6 +6,7 @@ const owner = cleanEnv("GITHUB_OWNER", "gtrolo");
 const repo = cleanEnv("GITHUB_REPO", "duckhunt100");
 const branch = cleanEnv("GITHUB_BRANCH", "main");
 const statePath = "data/state.json";
+const proofPassword = cleanPin(process.env.PROOF_PASSWORD || "rolo");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -27,6 +28,16 @@ module.exports = async function handler(req, res) {
     if (body.submission) {
       try {
         const savedState = await writePublicSubmission(body.submission);
+        res.status(200).json(savedState);
+      } catch (error) {
+        res.status(400).json({ error: error.message });
+      }
+      return;
+    }
+
+    if (body.proofUpdate) {
+      try {
+        const savedState = await writeProofUpdate(body.proofUpdate);
         res.status(200).json(savedState);
       } catch (error) {
         res.status(400).json({ error: error.message });
@@ -110,6 +121,11 @@ async function writePublicSubmission(submission) {
 
   const currentState = await readState();
   const currentBears = Array.isArray(currentState.bears) ? currentState.bears : [];
+  const targetBear = currentBears.find((item) => Number(item.id) === id) || {};
+  if (targetBear.proofImage && cleanPin(submission.proofPassword) !== proofPassword) {
+    throw new Error("Kwakbewijs aanpassen kan alleen met het wachtwoord.");
+  }
+
   const proofImage = await writeProofImage(id, submission.proofDataUrl);
   const nextState = {
     updatedAt: new Date().toISOString(),
@@ -137,6 +153,65 @@ async function writePublicSubmission(submission) {
   return nextState;
 }
 
+async function writeProofUpdate(update) {
+  const id = Number(update?.id);
+  if (!Number.isInteger(id) || id < 1 || id > DUCK_COUNT) {
+    throw new Error("Deze eend bestaat nie in de administratie. Zeer verdacht, zunne.");
+  }
+
+  if (cleanPin(update.proofPassword) !== proofPassword) {
+    throw new Error("Wachtwoord klopt niet.");
+  }
+
+  const currentState = await readState();
+  const currentBears = Array.isArray(currentState.bears) ? currentState.bears : [];
+  const targetBear = currentBears.find((item) => Number(item.id) === id) || {};
+  let nextProofImage = typeof targetBear.proofImage === "string" ? targetBear.proofImage : "";
+  let nextFound = Boolean(targetBear.found);
+  let proofImageToDelete = "";
+
+  if (update.deleteProof) {
+    proofImageToDelete = nextProofImage;
+    nextProofImage = "";
+    nextFound = false;
+  } else {
+    if (typeof update.proofDataUrl !== "string" || !update.proofDataUrl) {
+      throw new Error("Geen nieuwe kwakbewijsfoto ontvangen.");
+    }
+    nextProofImage = await writeProofImage(id, update.proofDataUrl);
+    nextFound = true;
+  }
+
+  const nextState = {
+    updatedAt: new Date().toISOString(),
+    bears: Array.from({ length: DUCK_COUNT }, (_, index) => {
+      const bearId = index + 1;
+      const existing = currentBears.find((item) => Number(item.id) === bearId) || {};
+      return {
+        id: bearId,
+        found: bearId === id ? nextFound : Boolean(existing.found),
+        name: typeof existing.name === "string" ? existing.name : undefined,
+        note: typeof existing.note === "string" ? existing.note : "",
+        proofImage: bearId === id ? nextProofImage : typeof existing.proofImage === "string" ? existing.proofImage : ""
+      };
+    })
+  };
+
+  const current = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${statePath}?ref=${branch}`);
+  await githubRequest("PUT", `/repos/${owner}/${repo}/contents/${statePath}`, {
+    message: update.deleteProof ? `Remove proof for duck ${id}` : `Replace proof for duck ${id}`,
+    content: Buffer.from(JSON.stringify(nextState, null, 2) + "\n").toString("base64"),
+    sha: current.sha,
+    branch
+  });
+
+  if (proofImageToDelete) {
+    await deleteProofImage(proofImageToDelete);
+  }
+
+  return nextState;
+}
+
 async function writeProofImage(id, dataUrl) {
   const match = String(dataUrl).match(/^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/);
   if (!match) throw new Error("Kwakbewijs heeft geen geldig afbeeldingsformaat.");
@@ -153,6 +228,20 @@ async function writeProofImage(id, dataUrl) {
   });
 
   return `/${proofPath}`;
+}
+
+async function deleteProofImage(proofImage) {
+  const proofPath = String(proofImage).replace(/^\/+/, "");
+  if (!proofPath.startsWith("assets/proofs/")) return;
+
+  const existing = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${proofPath}?ref=${branch}`, undefined, true);
+  if (!existing?.sha) return;
+
+  await githubRequest("DELETE", `/repos/${owner}/${repo}/contents/${proofPath}`, {
+    message: `Delete proof image ${path.basename(proofPath)}`,
+    sha: existing.sha,
+    branch
+  });
 }
 
 function sanitizeState(input) {

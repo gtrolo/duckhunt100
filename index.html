@@ -192,6 +192,7 @@
           </div>
         </div>
         <button class="image-button" type="button">
+          <img class="card-proof-image" alt="" />
           <span class="duck-token" aria-hidden="true">
             <span class="duck-initials"></span>
           </span>
@@ -206,18 +207,15 @@
             <input type="checkbox" />
             <span>Gevonden</span>
           </label>
-          <section class="proof-block" aria-label="Kwakbewijs">
-            <span>Kwakbewijs</span>
+          <section class="proof-block" aria-label="Kwakbewijs beheren">
             <p class="proof-target"></p>
-            <button class="proof-image-button" type="button">
-              <img class="proof-image" alt="" />
-              <strong class="proof-stamp"></strong>
-            </button>
-            <p class="proof-empty">Nog geen kwakbewijs. Maak een foto waarop het nummer onderop de eend zichtbaar is.</p>
-            <label class="proof-upload">
-              <span>Kwakbewijs uploaden</span>
-              <input class="proof-input" type="file" accept="image/*" />
-            </label>
+            <div class="proof-actions">
+              <label class="proof-upload">
+                <span>Kwakbewijs uploaden</span>
+                <input class="proof-input" type="file" accept="image/*" />
+              </label>
+              <button class="proof-delete" type="button">Bewijs verwijderen</button>
+            </div>
           </section>
           <label class="field-label note-field">
             <span>Vindplaatsnotitie</span>

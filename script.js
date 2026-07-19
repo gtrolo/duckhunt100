@@ -1,6 +1,7 @@
 const BEAR_COUNT = 100;
 const ADMIN_STORAGE_KEY = "duckhunt100-admin-pin-v1";
 const PUBLIC_URL = "https://duckhunt100.vercel.app";
+const PROOF_PASSWORD_LABEL = "rolo";
 
 const duckNames = [
   "Bram Batsbak",
@@ -542,6 +543,7 @@ function render() {
   state.forEach((bear) => {
     const card = template.content.firstElementChild.cloneNode(true);
     const imageButton = card.querySelector(".image-button");
+    const cardProofImage = card.querySelector(".card-proof-image");
     const duckToken = card.querySelector(".duck-token");
     const duckInitials = card.querySelector(".duck-initials");
     const badge = card.querySelector(".badge");
@@ -554,13 +556,10 @@ function render() {
     const noteInput = card.querySelector(".note-input");
     const noteField = card.querySelector(".note-field");
     const proofBlock = card.querySelector(".proof-block");
-    const proofImageButton = card.querySelector(".proof-image-button");
-    const proofImage = card.querySelector(".proof-image");
     const proofTarget = card.querySelector(".proof-target");
-    const proofStamp = card.querySelector(".proof-stamp");
-    const proofEmpty = card.querySelector(".proof-empty");
     const proofUpload = card.querySelector(".proof-upload");
     const proofInput = card.querySelector(".proof-input");
+    const proofDelete = card.querySelector(".proof-delete");
 
     card.id = bearAnchor(bear.id);
     imageButton.setAttribute("aria-label", `Bekijk eend ${bear.id}: ${bear.name}`);
@@ -591,19 +590,23 @@ function render() {
     noteInput.readOnly = !isAdmin;
     card.dataset.id = bear.id;
     card.classList.toggle("is-found", bear.found);
+    card.classList.toggle("has-proof", Boolean(bear.proofImage));
     card.classList.toggle("is-view-only", !isAdmin);
     card.classList.toggle("is-name-editing", isAdmin && editingNameBearId === bear.id);
     proofBlock.hidden = !bear.found;
     noteField.hidden = !bear.found;
-    proofImageButton.hidden = !bear.proofImage;
-    proofEmpty.hidden = Boolean(bear.proofImage);
-    proofUpload.hidden = false;
-    proofImage.src = bear.proofImage || "";
-    proofImage.alt = bear.proofImage ? `Kwakbewijs voor ${bear.name}` : "";
+    if (bear.proofImage) {
+      cardProofImage.src = bear.proofImage;
+      cardProofImage.alt = `Kwakbewijs voor ${bear.name}`;
+    } else {
+      cardProofImage.removeAttribute("src");
+      cardProofImage.alt = "";
+    }
     proofTarget.textContent = bear.proofImage
-      ? `Dit kwakbewijs hoort bij #${String(bear.id).padStart(3, "0")} - ${bear.name}. Nummer onderop moet zichtbaar zijn.`
+      ? `Kwakbewijs staat op de eendfoto. Wijzigen of verwijderen kan met wachtwoord ${PROOF_PASSWORD_LABEL}.`
       : `Kwakbewijs voor #${String(bear.id).padStart(3, "0")} - ${bear.name}: fotografeer het nummer onderop.`;
-    proofStamp.textContent = `Onderop #${String(bear.id).padStart(3, "0")}`;
+    proofUpload.querySelector("span").textContent = bear.proofImage ? "Kwakbewijs aanpassen" : "Kwakbewijs uploaden";
+    proofDelete.hidden = !bear.proofImage;
 
     checkbox.addEventListener("change", () => {
       const wasFound = bear.found;
@@ -668,10 +671,8 @@ function render() {
       if (!file) return;
 
       try {
-        setModeBanner("Kwakbewijs wordt ingestuurd. Als het onderkantnummer niet op de foto staat: gezeik gegarandeerd.", "saving");
-        const proofDataUrl = await resizeImage(file);
         const wasFound = bear.found;
-        const savedBear = await saveProofSubmission(bear.id, proofDataUrl);
+        const savedBear = await uploadProofForBear(bear, file);
         render();
         if (!wasFound) {
           showFoundSharePopup(savedBear);
@@ -683,14 +684,19 @@ function render() {
       }
     });
 
-    proofImageButton.addEventListener("click", () => {
-      if (!bear.proofImage) return;
+    proofDelete.addEventListener("click", async () => {
       const currentBear = state.find((item) => item.id === bear.id) || bear;
-      dialogImage.src = currentBear.proofImage;
-      dialogImage.alt = `Kwakbewijs voor ${currentBear.name}`;
-      dialogTitle.textContent = `Kwakbewijs #${String(bear.id).padStart(3, "0")} ${currentBear.name}`;
-      dialogText.textContent = currentBear.note || "Kwakbewijs ingediend. De vijverrechtbank kijkt streng. Terecht ook.";
-      dialog.showModal();
+      if (!currentBear.proofImage) return;
+      const proofPassword = requestProofPassword("Wachtwoord om dit kwakbewijs te verwijderen:");
+      if (!proofPassword) return;
+      if (!window.confirm(`Kwakbewijs voor #${String(bear.id).padStart(3, "0")} verwijderen?`)) return;
+
+      try {
+        await deleteProofForBear(currentBear, proofPassword);
+        render();
+      } catch (error) {
+        rejectBadPhoto(error.message);
+      }
     });
 
     imageButton.addEventListener("click", () => {
@@ -735,6 +741,12 @@ function publicUploadError(reason) {
   return reason;
 }
 
+function requestProofPassword(message) {
+  const proofPassword = window.prompt(message);
+  if (proofPassword === null) return "";
+  return cleanPin(proofPassword);
+}
+
 function openProofDialog(bear) {
   pendingProofBearId = bear.id;
   setModeBanner(`Kwakbewijs nodig voor #${String(bear.id).padStart(3, "0")}. Foto van het nummer onderop, dan pas gevonden. Simpel zat.`, "saving");
@@ -749,15 +761,59 @@ async function finishFoundWithProof(file) {
   if (!bear || !file) return;
 
   try {
-    setModeBanner("Kwakbewijs wordt verwerkt. Hopelijk staat dat onderkantnummer erop, jonge.", "saving");
-    const proofDataUrl = await resizeImage(file);
-    const savedBear = await saveProofSubmission(bear.id, proofDataUrl);
+    const savedBear = await uploadProofForBear(bear, file);
     proofDialog.close();
     pendingProofBearId = 0;
     render();
     showFoundSharePopup(savedBear);
   } catch (error) {
     rejectBadPhoto(error.message);
+  }
+}
+
+async function uploadProofForBear(bear, file) {
+  const proofPassword = bear.proofImage
+    ? requestProofPassword("Wachtwoord om dit kwakbewijs aan te passen:")
+    : "";
+  if (bear.proofImage && !proofPassword) {
+    throw new Error("Kwakbewijs aanpassen kan alleen met wachtwoord.");
+  }
+
+  setModeBanner(
+    bear.proofImage
+      ? "Nieuw kwakbewijs wordt gecontroleerd en vervangen..."
+      : "Kwakbewijs wordt ingestuurd. Als het onderkantnummer niet op de foto staat: gezeik gegarandeerd.",
+    "saving"
+  );
+  const proofDataUrl = await resizeImage(file);
+  return saveProofSubmission(bear.id, proofDataUrl, proofPassword);
+}
+
+async function deleteProofForBear(bear, proofPassword) {
+  setModeBanner("Kwakbewijs wordt verwijderd...", "saving");
+  try {
+    const response = await fetch("/api/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        proofUpdate: {
+          id: bear.id,
+          deleteProof: true,
+          proofPassword
+        }
+      })
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || "Kwakbewijs verwijderen mislukt.");
+    state = mergeSharedState(body);
+    setModeBanner("Kwakbewijs verwijderd. De eend staat weer op zoek.", "success");
+  } catch (error) {
+    if (!isLocalHost()) throw error;
+    updateBear(bear.id, {
+      found: false,
+      proofImage: ""
+    });
+    setModeBanner("Lokale teststand. Kwakbewijs verwijderd in deze browser.", "success");
   }
 }
 
@@ -794,13 +850,14 @@ function showFoundSharePopup(bear) {
   shareText.select();
 }
 
-function openBearDetail(bear, preferProof = false) {
-  const imageSource = preferProof && bear.proofImage ? bear.proofImage : imagePath(bear.id);
+function openBearDetail(bear) {
+  const imageSource = bear.proofImage || imagePath(bear.id);
   dialogImage.src = imageSource;
   dialogImage.alt = `Detail van ${bear.name}`;
   dialogTitle.textContent = `#${String(bear.id).padStart(3, "0")} ${bear.name}`;
   dialogText.textContent = [
     bear.found ? "Status: gevonden. Beetje beledigd, jammer dan." : "Status: nog voortvluchtig met natte voeten en praatjes.",
+    bear.proofImage ? "Deze foto is het kwakbewijs." : "",
     bear.story,
     bear.note ? `Vindplaatsnotitie / kwakrapport: ${bear.note}` : "",
     `Directe link: ${bearUrl(bear.id)}`
@@ -872,7 +929,7 @@ async function saveSharedState() {
   }
 }
 
-async function saveProofSubmission(id, proofDataUrl) {
+async function saveProofSubmission(id, proofDataUrl, proofPassword = "") {
   const localProofBear = state.find((item) => item.id === id);
   if (!localProofBear) throw new Error("Deze eend bestaat nie. Knap, maar onbruikbaar.");
 
@@ -883,7 +940,8 @@ async function saveProofSubmission(id, proofDataUrl) {
       body: JSON.stringify({
         submission: {
           id,
-          proofDataUrl
+          proofDataUrl,
+          proofPassword
         }
       })
     });
