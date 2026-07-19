@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const DUCK_COUNT = 100;
+const HINT_COUNT = 12;
 const owner = cleanEnv("GITHUB_OWNER", "gtrolo");
 const repo = cleanEnv("GITHUB_REPO", "duckhunt100");
 const branch = cleanEnv("GITHUB_BRANCH", "main");
@@ -40,6 +41,16 @@ module.exports = async function handler(req, res) {
     if (body.proofUpdate) {
       try {
         const savedState = await writeProofUpdate(body.proofUpdate);
+        res.status(200).json(savedState);
+      } catch (error) {
+        res.status(400).json({ error: error.message });
+      }
+      return;
+    }
+
+    if (body.hintUpdate) {
+      try {
+        const savedState = await writeHintUpdate(body.hintUpdate);
         res.status(200).json(savedState);
       } catch (error) {
         res.status(400).json({ error: error.message });
@@ -97,10 +108,20 @@ async function writeState(state) {
   for (const bear of state.bears) {
     const nextBear = { ...bear };
     if (nextBear.proofDataUrl) {
-      nextBear.proofImage = await writeProofImage(nextBear.id, nextBear.proofDataUrl);
+      nextBear.proofImage = await writeStoredImage("proofs", "duck", nextBear.id, nextBear.proofDataUrl);
       delete nextBear.proofDataUrl;
     }
     stateWithProofs.bears.push(nextBear);
+  }
+
+  stateWithProofs.hints = [];
+  for (const hint of state.hints || []) {
+    const nextHint = { ...hint };
+    if (nextHint.imageDataUrl) {
+      nextHint.image = await writeStoredImage("hints", "hint", nextHint.id, nextHint.imageDataUrl);
+      delete nextHint.imageDataUrl;
+    }
+    stateWithProofs.hints.push(nextHint);
   }
 
   const nextState = { ...stateWithProofs, updatedAt: new Date().toISOString() };
@@ -140,17 +161,8 @@ async function writePublicSubmission(submission) {
   const proofImage = await writeProofImage(id, submission.proofDataUrl);
   const nextState = {
     updatedAt: new Date().toISOString(),
-    bears: Array.from({ length: DUCK_COUNT }, (_, index) => {
-      const bearId = index + 1;
-      const existing = currentBears.find((item) => Number(item.id) === bearId) || {};
-      return {
-        id: bearId,
-        found: bearId === id ? true : Boolean(existing.found),
-        name: typeof existing.name === "string" ? existing.name : undefined,
-        note: typeof existing.note === "string" ? existing.note : "",
-        proofImage: bearId === id ? proofImage : typeof existing.proofImage === "string" ? existing.proofImage : ""
-      };
-    })
+    bears: buildBears(currentBears, id, { found: true, proofImage }),
+    hints: sanitizeHints(currentState.hints)
   };
 
   if (canUseBlob()) {
@@ -200,17 +212,8 @@ async function writeProofUpdate(update) {
 
   const nextState = {
     updatedAt: new Date().toISOString(),
-    bears: Array.from({ length: DUCK_COUNT }, (_, index) => {
-      const bearId = index + 1;
-      const existing = currentBears.find((item) => Number(item.id) === bearId) || {};
-      return {
-        id: bearId,
-        found: bearId === id ? nextFound : Boolean(existing.found),
-        name: typeof existing.name === "string" ? existing.name : undefined,
-        note: typeof existing.note === "string" ? existing.note : "",
-        proofImage: bearId === id ? nextProofImage : typeof existing.proofImage === "string" ? existing.proofImage : ""
-      };
-    })
+    bears: buildBears(currentBears, id, { found: nextFound, proofImage: nextProofImage }),
+    hints: sanitizeHints(currentState.hints)
   };
 
   if (canUseBlob()) {
@@ -237,15 +240,72 @@ async function writeProofUpdate(update) {
 }
 
 async function writeProofImage(id, dataUrl) {
+  return writeStoredImage("proofs", "duck", id, dataUrl);
+}
+
+async function writeHintUpdate(update) {
+  const id = Number(update?.id);
+  if (!Number.isInteger(id) || id < 1 || id > HINT_COUNT) {
+    throw new Error("Deze hintplek bestaat nie. Probeer een normale hintkaart, speurneus.");
+  }
+
+  const currentState = await readState();
+  const currentHints = sanitizeHints(currentState.hints);
+  const targetHint = currentHints.find((item) => Number(item.id) === id) || {};
+  const hasExistingContent = Boolean(targetHint.text || targetHint.image);
+  const suppliedPassword = cleanPin(update.password);
+  const needsPassword = hasExistingContent || update.deleteHint || update.deleteImage;
+  if (needsPassword && suppliedPassword !== proofPassword) {
+    throw new Error("Hint aanpassen of verwijderen kan alleen met het wachtwoord.");
+  }
+
+  let imageToDelete = "";
+  let nextText = typeof targetHint.text === "string" ? targetHint.text : "";
+  let nextImage = typeof targetHint.image === "string" ? targetHint.image : "";
+
+  if (update.deleteHint) {
+    imageToDelete = nextImage;
+    nextText = "";
+    nextImage = "";
+  } else {
+    nextText = typeof update.text === "string" ? update.text.slice(0, 320).trim() : nextText;
+    if (update.deleteImage) {
+      imageToDelete = nextImage;
+      nextImage = "";
+    }
+    if (typeof update.imageDataUrl === "string" && update.imageDataUrl) {
+      if (nextImage) imageToDelete = nextImage;
+      nextImage = await writeStoredImage("hints", "hint", id, update.imageDataUrl);
+    }
+    if (!nextText && !nextImage) {
+      throw new Error("Geen hint ingevuld. Tekst, foto, of allebei, jonge.");
+    }
+  }
+
+  const nextState = {
+    updatedAt: new Date().toISOString(),
+    bears: sanitizeBears(currentState.bears),
+    hints: currentHints.map((hint) => hint.id === id ? { id, text: nextText, image: nextImage } : hint)
+  };
+
+  await writePersistedState(nextState);
+  if (imageToDelete) {
+    await deleteProofImage(imageToDelete);
+  }
+  return nextState;
+}
+
+async function writeStoredImage(folder, prefix, id, dataUrl) {
   const match = String(dataUrl).match(/^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/);
-  if (!match) throw new Error("Kwakbewijs heeft geen geldig afbeeldingsformaat.");
+  if (!match) throw new Error("Afbeelding heeft geen geldig formaat.");
 
   const extension = match[1] === "png" ? "png" : match[1] === "webp" ? "webp" : "jpg";
   const buffer = Buffer.from(match[2], "base64");
+  const number = String(id).padStart(folder === "proofs" ? 3 : 2, "0");
 
   if (canUseBlob()) {
     const { put } = await loadBlobSdk();
-    const blob = await put(`proofs/duck-${String(id).padStart(3, "0")}.${extension}`, buffer, {
+    const blob = await put(`${folder}/${prefix}-${number}.${extension}`, buffer, {
       access: "public",
       addRandomSuffix: false,
       allowOverwrite: true,
@@ -255,7 +315,7 @@ async function writeProofImage(id, dataUrl) {
     return blob.url;
   }
 
-  const proofPath = `assets/proofs/duck-${String(id).padStart(3, "0")}.${extension}`;
+  const proofPath = `assets/${folder}/${prefix}-${number}.${extension}`;
   const existing = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${proofPath}?ref=${branch}`, undefined, true);
 
   await githubRequest("PUT", `/repos/${owner}/${repo}/contents/${proofPath}`, {
@@ -276,7 +336,7 @@ async function deleteProofImage(proofImage) {
   }
 
   const proofPath = String(proofImage).replace(/^\/+/, "");
-  if (!proofPath.startsWith("assets/proofs/")) return;
+  if (!proofPath.startsWith("assets/proofs/") && !proofPath.startsWith("assets/hints/")) return;
 
   const existing = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${proofPath}?ref=${branch}`, undefined, true);
   if (!existing?.sha) return;
@@ -289,10 +349,16 @@ async function deleteProofImage(proofImage) {
 }
 
 function sanitizeState(input) {
-  const bears = Array.isArray(input?.bears) ? input.bears : [];
   return {
     updatedAt: new Date().toISOString(),
-    bears: Array.from({ length: DUCK_COUNT }, (_, index) => {
+    bears: sanitizeBears(input?.bears),
+    hints: sanitizeHints(input?.hints)
+  };
+}
+
+function sanitizeBears(input) {
+  const bears = Array.isArray(input) ? input : [];
+  return Array.from({ length: DUCK_COUNT }, (_, index) => {
       const id = index + 1;
       const bear = bears.find((item) => Number(item.id) === id) || {};
       return {
@@ -303,8 +369,42 @@ function sanitizeState(input) {
         proofImage: typeof bear.proofImage === "string" ? bear.proofImage.slice(0, 600) : "",
         proofDataUrl: typeof bear.proofDataUrl === "string" ? bear.proofDataUrl : undefined
       };
-    })
-  };
+  });
+}
+
+function sanitizeHints(input) {
+  const hints = Array.isArray(input) ? input : [];
+  return Array.from({ length: HINT_COUNT }, (_, index) => {
+    const id = index + 1;
+    const hint = hints.find((item) => Number(item.id) === id) || {};
+    return {
+      id,
+      text: typeof hint.text === "string" ? hint.text.slice(0, 320) : "",
+      image: typeof hint.image === "string" ? hint.image.slice(0, 600) : "",
+      imageDataUrl: typeof hint.imageDataUrl === "string" ? hint.imageDataUrl : undefined
+    };
+  });
+}
+
+function buildBears(currentBears, changedId, patch) {
+  return sanitizeBears(currentBears).map((bear) => (
+    bear.id === changedId ? { ...bear, ...patch } : bear
+  ));
+}
+
+async function writePersistedState(nextState) {
+  if (canUseBlob()) {
+    await writeBlobState(nextState);
+    return;
+  }
+
+  const current = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${statePath}?ref=${branch}`);
+  await githubRequest("PUT", `/repos/${owner}/${repo}/contents/${statePath}`, {
+    message: "Update duckhunt state",
+    content: Buffer.from(JSON.stringify(nextState, null, 2) + "\n").toString("base64"),
+    sha: current.sha,
+    branch
+  });
 }
 
 function canUseBlob() {

@@ -331,6 +331,8 @@ const tokenThemes = [
 
 const grid = document.querySelector("#bearGrid");
 const template = document.querySelector("#bearCardTemplate");
+const hintGrid = document.querySelector("#hintGrid");
+const hintTemplate = document.querySelector("#hintCardTemplate");
 const progressBig = document.querySelector("#progressBig");
 const meterFill = document.querySelector("#meterFill");
 const statusLine = document.querySelector("#statusLine");
@@ -361,17 +363,35 @@ const proofDialogUploadButton = document.querySelector("#proofDialogUploadButton
 const proofDialogAdjustButton = document.querySelector("#proofDialogAdjustButton");
 const proofDialogDeleteButton = document.querySelector("#proofDialogDeleteButton");
 const closeProofDialog = document.querySelector(".proof-close");
+const hintDialog = document.querySelector("#hintDialog");
+const hintDialogKicker = document.querySelector("#hintDialogKicker");
+const hintDialogTitle = document.querySelector("#hintDialogTitle");
+const hintDialogText = document.querySelector("#hintDialogText");
+const hintDialogIcon = document.querySelector("#hintDialogIcon");
+const hintDialogImage = document.querySelector("#hintDialogImage");
+const hintDialogTextarea = document.querySelector("#hintDialogTextarea");
+const hintDialogInput = document.querySelector("#hintDialogInput");
+const hintDialogSaveButton = document.querySelector("#hintDialogSaveButton");
+const hintDialogUploadButton = document.querySelector("#hintDialogUploadButton");
+const hintDialogRemoveImageButton = document.querySelector("#hintDialogRemoveImageButton");
+const hintDialogDeleteButton = document.querySelector("#hintDialogDeleteButton");
+const closeHintDialog = document.querySelector(".hint-close");
 
 let activeFilter = "all";
 let state = createFreshState();
+let hints = createFreshHints();
 let saveTimer;
 let isSaving = false;
 let pendingProofBearId = 0;
+let pendingHintId = 0;
+let pendingHintImageDataUrl = "";
+let pendingHintDeleteImage = false;
 let editingNameBearId = 0;
 let adminPin = getAdminPin();
 let isAdmin = false;
 let proofImageVersion = "";
 const proofImagePreviews = new Map();
+const hintImagePreviews = new Map();
 
 function isLocalHost() {
   return window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
@@ -384,6 +404,14 @@ function createFreshState() {
     name: defaultNames[index],
     story: defaultStories[index],
     note: ""
+  }));
+}
+
+function createFreshHints() {
+  return Array.from({ length: 12 }, (_, index) => ({
+    id: index + 1,
+    text: "",
+    image: ""
   }));
 }
 
@@ -493,6 +521,17 @@ function mergeSharedState(sharedState) {
   if (typeof sharedState?.updatedAt === "string" && sharedState.updatedAt) {
     proofImageVersion = encodeURIComponent(sharedState.updatedAt);
   }
+  const sharedHints = Array.isArray(sharedState?.hints) ? sharedState.hints : [];
+  hints = createFreshHints().map((hint) => {
+    const sharedHint = sharedHints.find((item) => Number(item.id) === hint.id);
+    if (!sharedHint) return hint;
+    return {
+      ...hint,
+      text: typeof sharedHint.text === "string" ? sharedHint.text : "",
+      image: typeof sharedHint.image === "string" ? sharedHint.image : ""
+    };
+  });
+
   const sharedBears = Array.isArray(sharedState?.bears) ? sharedState.bears : [];
   return createFreshState().map((bear) => {
     const sharedBear = sharedBears.find((item) => Number(item.id) === bear.id);
@@ -520,6 +559,10 @@ function proofImageUrl(path) {
 
 function proofImageSource(bear) {
   return proofImagePreviews.get(bear.id) || proofImageUrl(bear.proofImage);
+}
+
+function hintImageSource(hint) {
+  return hintImagePreviews.get(hint.id) || proofImageUrl(hint.image);
 }
 
 function showProofImageFallback(bear, image, card) {
@@ -734,11 +777,50 @@ function render() {
 
   applyFilters();
   updateProgress();
+  renderHints();
   markLinkedBear();
 }
 
 function updateBear(id, patch) {
   state = state.map((bear) => (bear.id === id ? { ...bear, ...patch } : bear));
+}
+
+function renderHints() {
+  if (!hintGrid || !hintTemplate) return;
+  hintGrid.innerHTML = "";
+  hints.forEach((hint) => {
+    const card = hintTemplate.content.firstElementChild.cloneNode(true);
+    const imageButton = card.querySelector(".hint-image-button");
+    const image = card.querySelector(".hint-card-image");
+    const badge = card.querySelector(".hint-badge");
+    const text = card.querySelector(".hint-text");
+    const editButton = card.querySelector(".hint-edit-button");
+    const hasText = Boolean(hint.text.trim());
+    const hasImage = Boolean(hint.image);
+
+    card.dataset.id = hint.id;
+    card.classList.toggle("is-empty", !hasText && !hasImage);
+    card.classList.toggle("has-image", hasImage);
+    badge.textContent = `H${String(hint.id).padStart(2, "0")}`;
+    text.textContent = hasText ? hint.text : "Nog geen hint. Hier mag een verstopper iets verdachts droppen.";
+    editButton.textContent = hasText || hasImage ? "Bekijken" : "Hint plaatsen";
+    imageButton.setAttribute("aria-label", `Bekijk hint ${hint.id}`);
+    image.onerror = () => {
+      image.removeAttribute("src");
+      card.classList.remove("has-image");
+    };
+    if (hasImage) {
+      image.src = hintImageSource(hint);
+      image.alt = `Hintfoto ${hint.id}`;
+    } else {
+      image.removeAttribute("src");
+      image.alt = "";
+    }
+
+    imageButton.addEventListener("click", () => openHintDialog(hint));
+    editButton.addEventListener("click", () => openHintDialog(hint));
+    hintGrid.append(card);
+  });
 }
 
 function setModeBanner(text, kind = "info") {
@@ -894,6 +976,132 @@ async function deleteProofForBear(bear, proofPassword) {
   }
 }
 
+function openHintDialog(hint) {
+  pendingHintId = hint.id;
+  pendingHintImageDataUrl = "";
+  pendingHintDeleteImage = false;
+  const hasContent = Boolean(hint.text.trim() || hint.image);
+  hintDialog.dataset.variant = hasContent ? "found" : "new";
+  hintDialogKicker.textContent = `Hint H${String(hint.id).padStart(2, "0")}`;
+  hintDialogTitle.textContent = hasContent ? "Hint bekijken" : "Hint plaatsen";
+  hintDialogText.textContent = hasContent
+    ? "Aanpassen of verwijderen kan met het hint-wachtwoord."
+    : "Geef de zoekers een zetje. Of stuur ze subtiel het riet in.";
+  hintDialogTextarea.value = hint.text || "";
+  hintDialogInput.value = "";
+  hintDialogImage.onerror = () => {
+    hintDialogImage.hidden = true;
+    hintDialogIcon.hidden = false;
+  };
+  if (hint.image) {
+    hintDialogImage.src = hintImageSource(hint);
+    hintDialogImage.alt = `Hintfoto ${hint.id}`;
+  } else {
+    hintDialogImage.removeAttribute("src");
+    hintDialogImage.alt = "";
+  }
+  hintDialogImage.hidden = !hint.image;
+  hintDialogIcon.hidden = Boolean(hint.image);
+  hintDialogUploadButton.textContent = hint.image ? "Andere foto" : "Foto toevoegen";
+  hintDialogRemoveImageButton.hidden = !hint.image;
+  hintDialogDeleteButton.hidden = !hasContent;
+  hintDialog.showModal();
+  setTimeout(() => hintDialogTextarea.focus(), 0);
+}
+
+async function chooseHintImage(file) {
+  if (!file || !pendingHintId) return;
+  try {
+    pendingHintImageDataUrl = await resizeImage(file);
+    pendingHintDeleteImage = false;
+    hintDialogImage.src = pendingHintImageDataUrl;
+    hintDialogImage.hidden = false;
+    hintDialogIcon.hidden = true;
+    hintDialogRemoveImageButton.hidden = false;
+  } catch (error) {
+    alert(`Hintfoto lukt nie: ${error.message}`);
+  }
+}
+
+async function saveHintFromDialog() {
+  const hint = hints.find((item) => item.id === pendingHintId);
+  if (!hint) return;
+  const text = hintDialogTextarea.value.trim();
+  const hasExistingContent = Boolean(hint.text.trim() || hint.image);
+  const password = hasExistingContent
+    ? requestProofPassword("Wachtwoord om deze hint aan te passen:")
+    : "";
+  if (hasExistingContent && !password) return;
+  if (!text && !pendingHintImageDataUrl && !(hint.image && !pendingHintDeleteImage)) {
+    alert("Geen hint ingevuld. Tekst of foto, anders is het gewoon stilte met wifi.");
+    return;
+  }
+
+  setModeBanner("Hint wordt opgeslagen...", "saving");
+  try {
+    const response = await fetch("/api/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hintUpdate: {
+          id: pendingHintId,
+          text,
+          imageDataUrl: pendingHintImageDataUrl,
+          deleteImage: pendingHintDeleteImage,
+          password
+        }
+      })
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || "Hint opslaan mislukt.");
+    proofImageVersion = encodeURIComponent(body.updatedAt || new Date().toISOString());
+    hintImagePreviews.delete(pendingHintId);
+    state = mergeSharedState(body);
+    hintDialog.close();
+    pendingHintId = 0;
+    render();
+    setModeBanner("Hint opgeslagen. De zoekers mogen nu officieel twijfelen.", "success");
+  } catch (error) {
+    setModeBanner(error.message, "warning");
+    alert(error.message);
+  }
+}
+
+async function deleteHintFromDialog() {
+  const hint = hints.find((item) => item.id === pendingHintId);
+  if (!hint || !(hint.text.trim() || hint.image)) return;
+  const password = requestProofPassword("Wachtwoord om deze hint te verwijderen:");
+  if (!password) return;
+  if (!window.confirm(`Hint H${String(hint.id).padStart(2, "0")} verwijderen?`)) return;
+
+  setModeBanner("Hint wordt verwijderd...", "saving");
+  try {
+    const response = await fetch("/api/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hintUpdate: {
+          id: hint.id,
+          deleteHint: true,
+          password
+        }
+      })
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || "Hint verwijderen mislukt.");
+    proofImageVersion = encodeURIComponent(body.updatedAt || new Date().toISOString());
+    hintImagePreviews.delete(hint.id);
+    state = mergeSharedState(body);
+    hintDialog.close();
+    pendingHintId = 0;
+    render();
+    setModeBanner("Hint verwijderd. Mysterie hersteld.", "success");
+  } catch (error) {
+    setModeBanner(error.message, "warning");
+    alert(error.message);
+  }
+}
+
 function bearAnchor(id) {
   return `duck-${String(id).padStart(3, "0")}`;
 }
@@ -979,6 +1187,11 @@ async function saveSharedState() {
             note,
             proofImage,
             proofDataUrl
+          })),
+          hints: hints.map(({ id, text, image }) => ({
+            id,
+            text,
+            image
           }))
         }
       })
@@ -1164,6 +1377,11 @@ closeProofDialog.addEventListener("click", () => {
   proofDialog.close();
 });
 
+closeHintDialog.addEventListener("click", () => {
+  pendingHintId = 0;
+  hintDialog.close();
+});
+
 proofDialogInput.addEventListener("change", () => {
   const file = proofDialogInput.files?.[0];
   if (!file) return;
@@ -1194,6 +1412,28 @@ proofDialogDeleteButton.addEventListener("click", async () => {
     rejectBadPhoto(error.message);
   }
 });
+
+hintDialogInput.addEventListener("change", () => {
+  const file = hintDialogInput.files?.[0];
+  if (!file) return;
+  chooseHintImage(file);
+});
+
+hintDialogUploadButton.addEventListener("click", () => {
+  hintDialogInput.click();
+});
+
+hintDialogRemoveImageButton.addEventListener("click", () => {
+  pendingHintImageDataUrl = "";
+  pendingHintDeleteImage = true;
+  hintDialogImage.removeAttribute("src");
+  hintDialogImage.hidden = true;
+  hintDialogIcon.hidden = false;
+  hintDialogRemoveImageButton.hidden = true;
+});
+
+hintDialogSaveButton.addEventListener("click", saveHintFromDialog);
+hintDialogDeleteButton.addEventListener("click", deleteHintFromDialog);
 
 copyShareButton.addEventListener("click", async () => {
   await navigator.clipboard.writeText(shareText.value);

@@ -19,7 +19,7 @@
         <a href="#hunt" data-filter-link="all">100 eenden</a>
         <a href="#hunt" data-filter-link="found">Gevonden</a>
         <a href="#ducking">Ducking</a>
-        <a href="#poster">Foto's</a>
+        <a href="#hints">Hints</a>
       </nav>
     </header>
 
@@ -155,24 +155,16 @@
         </div>
       </section>
 
-      <section class="video-panel duckwall" id="poster">
+      <section class="video-panel hint-panel" id="hints">
         <div class="section-head">
           <div>
-            <p class="kicker">Foto's en sfeer</p>
-            <h2>Eendenbeelden</h2>
+            <p class="kicker">Voor de verstoppers</p>
+            <h2>Hints</h2>
           </div>
           <a class="back-to-list" href="#hunt" data-filter-link="all">Terug naar de lijst met 100 eenden</a>
         </div>
-        <div class="duck-mosaic" aria-label="Sfeerbeelden van eenden">
-          <img src="./assets/real-ducks/img_2583.jpg" alt="Echte eendenserie detailfoto" />
-          <img src="./assets/real-ducks/img_2584.jpg" alt="Echte eendenserie detailfoto" />
-          <img src="./assets/real-ducks/img_2585.jpg" alt="Echte eendenserie detailfoto" />
-          <img src="./assets/real-ducks/img_2586.jpg" alt="Echte eendenserie detailfoto" />
-          <img src="./assets/real-ducks/img_2587.jpg" alt="Echte eendenserie detailfoto" />
-          <img src="./assets/real-ducks/img_2588.jpg" alt="Echte eendenserie detailfoto" />
-          <img src="./assets/real-ducks/img_2589.jpg" alt="Echte eendenserie detailfoto" />
-          <img src="./assets/real-ducks/img_2590.jpg" alt="Echte eendenserie detailfoto" />
-        </div>
+        <p class="section-note">Kado-gevers mogen hier subtiele of totaal onbehulpzame hints droppen. Tekst mag, foto mag ook.</p>
+        <div class="hint-grid" id="hintGrid" aria-label="Hints van de eendenverstoppers"></div>
       </section>
     </main>
 
@@ -216,6 +208,20 @@
       </article>
     </template>
 
+    <template id="hintCardTemplate">
+      <article class="hint-card">
+        <button class="hint-image-button" type="button">
+          <img class="hint-card-image" alt="" />
+          <span class="hint-token" aria-hidden="true">?</span>
+          <span class="hint-badge"></span>
+        </button>
+        <div class="hint-body">
+          <p class="hint-text"></p>
+          <button class="hint-edit-button" type="button">Hint plaatsen</button>
+        </div>
+      </article>
+    </template>
+
     <dialog id="shareDialog">
       <button class="close share-close" type="button" aria-label="Sluiten">x</button>
       <div class="share-panel">
@@ -249,6 +255,35 @@
           <div class="proof-dialog-secondary">
             <button id="proofDialogAdjustButton" type="button">Aanpassen</button>
             <button id="proofDialogDeleteButton" type="button">Verwijderen</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="proof-modal hint-modal" id="hintDialog">
+      <button class="close hint-close" type="button" aria-label="Sluiten">x</button>
+      <div class="proof-modal-panel">
+        <p class="kicker" id="hintDialogKicker">Hintbureau</p>
+        <h3 id="hintDialogTitle">Hint plaatsen</h3>
+        <p id="hintDialogText">Drop iets waar zoekers net wel of net niks aan hebben.</p>
+        <div class="proof-dialog-icon hint-dialog-icon" id="hintDialogIcon" aria-hidden="true">
+          <span>?</span>
+        </div>
+        <img class="proof-dialog-image" id="hintDialogImage" alt="" />
+        <label class="field-label hint-dialog-field">
+          <span>Hinttekst</span>
+          <textarea id="hintDialogTextarea" rows="4" maxlength="320" placeholder="Bijvoorbeeld: kijk waar niemand met droge voeten wil kijken..."></textarea>
+        </label>
+        <label class="proof-upload proof-dialog-upload">
+          <span>Hintfoto</span>
+          <input id="hintDialogInput" type="file" accept="image/*" />
+        </label>
+        <div class="proof-dialog-actions">
+          <button class="button primary" id="hintDialogSaveButton" type="button">Hint opslaan</button>
+          <button class="button ghost" id="hintDialogUploadButton" type="button">Foto toevoegen</button>
+          <div class="proof-dialog-secondary">
+            <button id="hintDialogRemoveImageButton" type="button">Foto weghalen</button>
+            <button id="hintDialogDeleteButton" type="button">Hint verwijderen</button>
           </div>
         </div>
       </div>

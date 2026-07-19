@@ -630,13 +630,15 @@ h2 {
   box-shadow: inset 0 0 0 1px rgba(16, 51, 59, 0.1), 0 10px 30px rgba(7, 70, 87, 0.08);
 }
 
-.bear-grid {
+.bear-grid,
+.hint-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
-.bear-card {
+.bear-card,
+.hint-card {
   position: relative;
   display: grid;
   min-height: 100%;
@@ -649,7 +651,8 @@ h2 {
   transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
 }
 
-.bear-card::before {
+.bear-card::before,
+.hint-card::before {
   content: "";
   position: absolute;
   inset: 0 0 auto;
@@ -657,7 +660,8 @@ h2 {
   background: linear-gradient(90deg, var(--sun), var(--coral), var(--pink), var(--pool));
 }
 
-.bear-card:hover {
+.bear-card:hover,
+.hint-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 34px rgba(6, 84, 103, 0.15);
 }
@@ -815,7 +819,8 @@ h2 {
   display: block;
 }
 
-.image-button {
+.image-button,
+.hint-image-button {
   position: relative;
   display: grid;
   place-items: center;
@@ -829,7 +834,8 @@ h2 {
   cursor: zoom-in;
 }
 
-.card-proof-image {
+.card-proof-image,
+.hint-card-image {
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -840,16 +846,20 @@ h2 {
   object-position: center;
 }
 
-.bear-card.has-proof .card-proof-image {
+.bear-card.has-proof .card-proof-image,
+.hint-card.has-image .hint-card-image {
   display: block;
 }
 
 .bear-card.has-proof .duck-token,
-.bear-card.has-proof .image-button::after {
+.bear-card.has-proof .image-button::after,
+.hint-card.has-image .hint-token,
+.hint-card.has-image .hint-image-button::after {
   display: none;
 }
 
-.image-button::after {
+.image-button::after,
+.hint-image-button::after {
   content: "";
   position: absolute;
   inset: auto -16% -38px;
@@ -881,6 +891,124 @@ h2 {
     0 14px 30px rgba(4, 125, 150, 0.2);
   transform: rotate(var(--token-rotate));
   transition: transform 240ms ease;
+}
+
+.hint-panel {
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(232, 255, 213, 0.86), rgba(255, 255, 255, 0.72)),
+    radial-gradient(circle at 86% 6%, rgba(255, 223, 67, 0.46), transparent 32%);
+}
+
+.hint-grid {
+  margin-top: 16px;
+}
+
+.hint-card {
+  align-content: start;
+}
+
+.hint-token {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 62%;
+  aspect-ratio: 1 / 1;
+  place-items: center;
+  color: var(--navy);
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.68) 0 16%, transparent 17%),
+    linear-gradient(135deg, var(--sun), var(--lime));
+  border-radius: 42% 58% 46% 54%;
+  box-shadow: inset -9px -10px 0 rgba(8, 66, 82, 0.1), 0 12px 26px rgba(4, 125, 150, 0.18);
+  font-size: clamp(2rem, 12vw, 4rem);
+  font-weight: 950;
+}
+
+.hint-badge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: inline-flex;
+  min-width: 42px;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 8px;
+  color: var(--navy);
+  background: var(--sun);
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 950;
+}
+
+.hint-body {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+}
+
+.hint-text {
+  min-height: 4.8em;
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1.24;
+  overflow-wrap: anywhere;
+}
+
+.hint-card.is-empty .hint-text {
+  color: var(--muted);
+  opacity: 0.78;
+}
+
+.hint-edit-button {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px;
+  color: var(--foam);
+  background: var(--pool-deep);
+  border: 0;
+  border-radius: 14px;
+  font-size: 0.68rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.hint-card:not(.is-empty) .hint-edit-button {
+  color: var(--navy);
+  background: var(--lime);
+}
+
+.hint-dialog-field textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 13px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.86);
+  border: 0;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px rgba(16, 51, 59, 0.08);
+  line-height: 1.35;
+  resize: vertical;
+}
+
+.hint-modal .hint-dialog-icon {
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.72) 0 8%, transparent 9%),
+    linear-gradient(135deg, var(--sun), var(--lime));
+}
+
+.hint-modal .hint-dialog-icon::before,
+.hint-modal .hint-dialog-icon::after {
+  display: none;
+}
+
+.hint-modal .hint-dialog-icon span {
+  transform: none;
 }
 
 .duck-token::before {
