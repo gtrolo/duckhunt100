@@ -539,12 +539,13 @@ function mergeSharedState(sharedState) {
   return createFreshState().map((bear) => {
     const sharedBear = sharedBears.find((item) => Number(item.id) === bear.id);
     if (!sharedBear) return bear;
+    const proofImage = typeof sharedBear.proofImage === "string" ? sharedBear.proofImage : "";
     return {
       ...bear,
-      found: Boolean(sharedBear.found),
+      found: Boolean(sharedBear.found && proofImage),
       name: typeof sharedBear.name === "string" && sharedBear.name.trim() ? sharedBear.name : bear.name,
       note: typeof sharedBear.note === "string" ? sharedBear.note : "",
-      proofImage: typeof sharedBear.proofImage === "string" ? sharedBear.proofImage : ""
+      proofImage
     };
   });
 }

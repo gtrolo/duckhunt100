@@ -367,13 +367,15 @@ function sanitizeBears(input) {
   return Array.from({ length: DUCK_COUNT }, (_, index) => {
       const id = index + 1;
       const bear = bears.find((item) => Number(item.id) === id) || {};
+      const proofImage = typeof bear.proofImage === "string" ? bear.proofImage.slice(0, 600) : "";
+      const proofDataUrl = typeof bear.proofDataUrl === "string" ? bear.proofDataUrl : undefined;
       return {
         id,
-        found: Boolean(bear.found),
+        found: Boolean(bear.found && (proofImage || proofDataUrl)),
         name: typeof bear.name === "string" ? bear.name.slice(0, 80) : undefined,
         note: typeof bear.note === "string" ? bear.note.slice(0, 400) : "",
-        proofImage: typeof bear.proofImage === "string" ? bear.proofImage.slice(0, 600) : "",
-        proofDataUrl: typeof bear.proofDataUrl === "string" ? bear.proofDataUrl : undefined
+        proofImage,
+        proofDataUrl
       };
   });
 }
