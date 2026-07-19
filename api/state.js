@@ -6,6 +6,7 @@ const owner = cleanEnv("GITHUB_OWNER", "gtrolo");
 const repo = cleanEnv("GITHUB_REPO", "duckhunt100");
 const branch = cleanEnv("GITHUB_BRANCH", "main");
 const statePath = "data/state.json";
+const blobStatePath = "state/data.json";
 const proofPassword = cleanPin(process.env.PROOF_PASSWORD || "bramkayleigh");
 let blobSdkPromise;
 
@@ -73,6 +74,11 @@ module.exports = async function handler(req, res) {
 };
 
 async function readState() {
+  if (canUseBlob()) {
+    const blobState = await readBlobState();
+    if (blobState) return blobState;
+  }
+
   if (process.env.GITHUB_TOKEN) {
     const file = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${statePath}?ref=${branch}`);
     return JSON.parse(Buffer.from(file.content, "base64").toString("utf8"));
@@ -83,7 +89,7 @@ async function readState() {
 }
 
 async function writeState(state) {
-  if (!process.env.GITHUB_TOKEN) {
+  if (!canUseBlob() && !process.env.GITHUB_TOKEN) {
     throw new Error("GITHUB_TOKEN ontbreekt; gedeeld opslaan is nog niet gekoppeld.");
   }
 
@@ -97,9 +103,13 @@ async function writeState(state) {
     stateWithProofs.bears.push(nextBear);
   }
 
-  const current = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${statePath}?ref=${branch}`);
   const nextState = { ...stateWithProofs, updatedAt: new Date().toISOString() };
+  if (canUseBlob()) {
+    await writeBlobState(nextState);
+    return nextState;
+  }
 
+  const current = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${statePath}?ref=${branch}`);
   await githubRequest("PUT", `/repos/${owner}/${repo}/contents/${statePath}`, {
     message: "Update found duck state",
     content: Buffer.from(JSON.stringify(nextState, null, 2) + "\n").toString("base64"),
@@ -142,6 +152,11 @@ async function writePublicSubmission(submission) {
       };
     })
   };
+
+  if (canUseBlob()) {
+    await writeBlobState(nextState);
+    return nextState;
+  }
 
   const current = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${statePath}?ref=${branch}`);
   await githubRequest("PUT", `/repos/${owner}/${repo}/contents/${statePath}`, {
@@ -197,6 +212,14 @@ async function writeProofUpdate(update) {
       };
     })
   };
+
+  if (canUseBlob()) {
+    await writeBlobState(nextState);
+    if (proofImageToDelete) {
+      await deleteProofImage(proofImageToDelete);
+    }
+    return nextState;
+  }
 
   const current = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${statePath}?ref=${branch}`);
   await githubRequest("PUT", `/repos/${owner}/${repo}/contents/${statePath}`, {
@@ -293,6 +316,26 @@ async function loadBlobSdk() {
     blobSdkPromise = import("@vercel/blob");
   }
   return blobSdkPromise;
+}
+
+async function readBlobState() {
+  const { get } = await loadBlobSdk();
+  const result = await get(blobStatePath, { access: "public", useCache: false });
+  if (!result?.stream) return null;
+
+  const text = await new Response(result.stream).text();
+  return JSON.parse(text);
+}
+
+async function writeBlobState(state) {
+  const { put } = await loadBlobSdk();
+  await put(blobStatePath, Buffer.from(JSON.stringify(state, null, 2) + "\n"), {
+    access: "public",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    cacheControlMaxAge: 0,
+    contentType: "application/json"
+  });
 }
 
 async function githubRequest(method, apiPath, body, allowNotFound = false) {
