@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T06:34:59.376Z",
+  "updatedAt": "2026-07-19T06:36:45.676Z",
   "bears": [
     {
       "id": 1,
@@ -10,10 +10,10 @@
     },
     {
       "id": 2,
-      "found": true,
+      "found": false,
       "name": "Khole Kayleigh",
       "note": "",
-      "proofImage": "/assets/proofs/duck-002.jpg"
+      "proofImage": ""
     },
     {
       "id": 3,
