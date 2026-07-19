@@ -211,6 +211,8 @@ const duckRealNames = [
 
 const quipGuestNames = duckRealNames.slice(0, 30);
 const quipGuestName = quipGuestNames[Math.floor(Math.random() * quipGuestNames.length)];
+const quipBackupName = quipGuestNames[Math.floor(Math.random() * quipGuestNames.length)];
+const quipVariantIndex = Math.floor(Math.random() * 5);
 
 const duckCrimes = [
   "jat kruimels alsof het gemeentebelasting is en kijkt er nog trots bij ook",
@@ -261,28 +263,36 @@ const defaultStories = Array.from({ length: BEAR_COUNT }, (_, index) => {
   return `Serie-eend #${String(index + 1).padStart(3, "0")}: ${title} ${crime}. Meestal verstopt ${hideout}. ${insult}`;
 });
 
-const quips = [
-  `0 gevonden. ${quipGuestName} komt wel mee zoeken als ge het lief vraagt, maar verwacht geen wonderen.`,
-  `5 gevonden. ${quipGuestName} zegt dat dit tempo "best aardig" is, dus nu niet naast uw schoenen lopen.`,
-  `10 gevonden. Een tiende binnen. Dennis heeft het druk, hem nie bellen voor zoiets kleins.`,
-  `15 gevonden. De eerste eenden zingen. Tim houdt van eendjes, bel voor hulp of juist absoluut niet.`,
-  `20 gevonden. Dit begint op recherchewerk te lijken, maar dan met meer bukken en minder waardigheid.`,
-  `25 gevonden. Kwart binnen. Suus wijst waarschijnlijk drie eenden aan voordat gij uw jas aan hebt.`,
-  `30 gevonden. Bram mag optimistisch kijken. Kayleigh nog niet te hard juichen, straks horen ze het.`,
-  `35 gevonden. Er zit ritme in. ${quipGuestName} noemt dit "een beweging", niemand weet waarom.`,
-  `40 gevonden. Bijna halverwege. De vrienden zijn irritant, maar helaas ook effectief.`,
-  `45 gevonden. De tweeling ruikt plastic paniek. Doorpakken voordat iemand koffie gaat drinken.`,
-  `50 gevonden. Helft gepakt. ${quipGuestName} doet alsof dit altijd al het plan was.`,
-  `55 gevonden. Nu wordt het serieus. Iedere plantenbak is officieel verdacht.`,
-  `60 gevonden. Zestig ducks in de tas. Brabantse inburgering gaat prima, gek genoeg.`,
-  `65 gevonden. De eenden duiken weg. Laf gedrag, gewoon zoeken.`,
-  `70 gevonden. De laatste dertig doen ineens stoer. Raar, voor plastic met een snavel.`,
-  `75 gevonden. Driekwart binnen. ${quipGuestName} mag alvast heel dramatisch "bijna" roepen.`,
-  `80 gevonden. Niet verslappen. Dit is precies waar mensen ineens onder kussens gaan onderhandelen.`,
-  `85 gevonden. Iedereen kalm blijven, behalve de eenden. Die hebben terecht stress.`,
-  `90 gevonden. Hoofdmissie gehaald. Laatste tien zijn bonus voor mensen met karakter en knieën.`,
-  `95 gevonden. Bonusronde. Niemand hoeft dit te doen, maar stoppen is nu ook slap.`,
-  `100 gevonden. Duckhunt klaar. Huis ingewijd, eenden vernederd, houdoe.`
+const progressBandThemes = [
+  "de zoektocht staat nog met jas aan in de gang",
+  "de eerste plastic paniek is officieel begonnen",
+  "er zit zowaar tempo in, voorzichtig applaus",
+  "de eenden beginnen elkaar al verdacht aan te kijken",
+  "dit lijkt steeds meer op recherchewerk met slechte knieen",
+  "de kwartfinale van bukken en wijzen is bereikt",
+  "Bram mag optimistisch kijken, maar nog niet irritant breed",
+  "het huis voelt inmiddels als een plaats delict met hapjes",
+  "bijna halverwege en niemand heeft nog een normale verklaring",
+  "de tweeling ruikt plastic paniek en dat is meestal terecht",
+  "de helft is binnen, dus iedereen mag drie seconden trots doen",
+  "iedere plantenbak is vanaf nu officieel verdacht",
+  "Brabantse inburgering gaat gek genoeg prima",
+  "de eenden doen ineens alsof ze nooit bestaan hebben",
+  "de laatste dertig krijgen praatjes, heel onverstandig",
+  "driekwart binnen en stoppen zou nu sociaal zwak zijn",
+  "dit is het moment waarop mensen onder kussens gaan onderhandelen",
+  "iedereen kalm blijven, behalve de eenden",
+  "hoofdmissie gehaald, bonusjacht voor mensen met karakter",
+  "bonusronde, totaal onnodig maar stoppen voelt slap",
+  "klaar, huis ingewijd, eenden vernederd"
+];
+
+const progressQuipTemplates = [
+  ({ found, name, theme }) => `${found} gevonden. ${name} komt wel mee zoeken als ge het lief vraagt; ${theme}.`,
+  ({ found, name, backupName, theme }) => `${found} gevonden. ${name} zegt dat ${backupName} moet bukken, want ${theme}.`,
+  ({ found, name, theme }) => `${found} gevonden. ${name} neemt de leiding, wat niemand gevraagd had, maar goed: ${theme}.`,
+  ({ found, backupName, theme }) => `${found} gevonden. ${backupName} heeft het druk, dus gij moet zelf verder zoeken. Kortom: ${theme}.`,
+  ({ found, name, theme }) => `${found} gevonden. ${name} noemt dit "bijna professioneel", en dat is precies het probleem: ${theme}.`
 ];
 
 const heroQuotes = [
@@ -1053,16 +1063,24 @@ function autoGrow(textarea) {
   textarea.style.height = `${textarea.scrollHeight}px`;
 }
 
+function progressStatusLine(found) {
+  const band = found === BEAR_COUNT
+    ? progressBandThemes.length - 1
+    : Math.floor(Math.max(found - 1, 0) / 5);
+  const theme = progressBandThemes[Math.min(band, progressBandThemes.length - 1)];
+  const template = progressQuipTemplates[quipVariantIndex];
+  return template({ found, name: quipGuestName, backupName: quipBackupName, theme });
+}
+
 function updateProgress() {
   const found = state.filter((bear) => bear.found).length;
   const remaining = BEAR_COUNT - found;
   const percent = Math.round((found / BEAR_COUNT) * 100);
-  const milestone = Math.min(Math.floor(found / 5), quips.length - 1);
   const untilVoucher = Math.max(90 - found, 0);
 
   progressBig.textContent = found;
   meterFill.style.width = `${percent}%`;
-  statusLine.textContent = quips[milestone];
+  statusLine.textContent = progressStatusLine(found);
 
   if (found >= 90) {
     bondLine.textContent = found === BEAR_COUNT
