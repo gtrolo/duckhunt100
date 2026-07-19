@@ -259,12 +259,27 @@ const defaultStories = Array.from({ length: BEAR_COUNT }, (_, index) => {
 });
 
 const quips = [
-  "De eenden doen dom. De tweeling mag ze aanwijzen, volwassenen mogen bukken.",
-  "Er is vooruitgang. Niet veel, maar genoeg om de kids stoer over te laten doen.",
-  "Dit begint op recherchewerk te lijken. Lekker dan, housewarming veranderd in kinderspeurtocht.",
-  "Meer dan de helft gepakt. De ducks krijgen praatjes terug in hun snavel.",
-  "Bijna klaar. De laatste eenden doen ineens heel stil. Laf.",
-  "100/100. Duckhunt klaar. Housewarming gered. Houdoe, klaar, wegwezen."
+  "0 gevonden. De eenden hebben nog kapsones. Bram en Kayleigh hun dinerbon zit vastgebonden in de voorraadkast.",
+  "5 gevonden. De tweeling draait warm, volwassenen beginnen al verdacht te hijgen.",
+  "10 gevonden. Een tiende binnen. Nog geen dinerbon, wel licht overdreven trots.",
+  "15 gevonden. De eerste eenden zingen. Niet mooi, wel bruikbaar bewijs.",
+  "20 gevonden. Dit begint op recherchewerk te lijken, maar dan met meer bukken.",
+  "25 gevonden. Kwart binnen. De bon hoort geritsel, maar mag nog niet naar buiten.",
+  "30 gevonden. Bram mag optimistisch kijken. Kayleigh nog niet te hard juichen.",
+  "35 gevonden. Er zit ritme in. De eenden verliezen zichtbaar praatjes.",
+  "40 gevonden. Bijna halverwege. De vrienden zijn irritant, maar effectief.",
+  "45 gevonden. De tweeling ruikt plastic paniek. Doorpakken.",
+  "50 gevonden. Helft gepakt. De dinerbon krijgt water, maar nog geen vrijheid.",
+  "55 gevonden. Nu wordt het serieus. Iedere plantenbak is officieel verdacht.",
+  "60 gevonden. Zestig ducks in de tas. Brabantse inburgering gaat prima.",
+  "65 gevonden. De eenden duiken weg. Laf gedrag, gewoon zoeken.",
+  "70 gevonden. Nog twintig tot de bon los mag. De laatste dertig doen stoer.",
+  "75 gevonden. Driekwart binnen. Bram en Kayleigh mogen alvast het menu fantaseren.",
+  "80 gevonden. De bon ziet daglicht in de verte. Niet verslappen.",
+  "85 gevonden. Vijf te gaan tot vrijlating. Iedereen kalm blijven, behalve de eenden.",
+  "90 gevonden. Dinerbon vrijgelaten. Laatste tien zijn bonus voor eeuwige roem.",
+  "95 gevonden. Bonusronde. Niemand hoeft dit te doen, maar stoppen is nu ook slap.",
+  "100 gevonden. Duckhunt klaar. Bon vrij, huis ingewijd, houdoe."
 ];
 
 const heroQuotes = [
@@ -306,6 +321,7 @@ const template = document.querySelector("#bearCardTemplate");
 const progressBig = document.querySelector("#progressBig");
 const meterFill = document.querySelector("#meterFill");
 const statusLine = document.querySelector("#statusLine");
+const bondLine = document.querySelector("#bondLine");
 const unlockLine = document.querySelector("#unlockLine");
 const heroQuote = document.querySelector("#heroQuote");
 const searchInput = document.querySelector("#searchInput");
@@ -1038,27 +1054,32 @@ function updateProgress() {
   const found = state.filter((bear) => bear.found).length;
   const remaining = BEAR_COUNT - found;
   const percent = Math.round((found / BEAR_COUNT) * 100);
+  const milestone = Math.min(Math.floor(found / 5), quips.length - 1);
+  const untilVoucher = Math.max(90 - found, 0);
 
   progressBig.textContent = found;
   meterFill.style.width = `${percent}%`;
+  statusLine.textContent = quips[milestone];
+
+  if (found >= 90) {
+    bondLine.textContent = found === BEAR_COUNT
+      ? "Dinerbon vrij en volledig verdiend. Alle eenden gepakt, belachelijk netjes."
+      : "Dinerbon vrijgelaten. Vanaf nu zijn de laatste 10 bonus-eenden voor de eer.";
+  } else {
+    bondLine.textContent = `Dinerbon gegijzeld: nog ${untilVoucher} eenden tot vrijlating bij 90/100.`;
+  }
 
   if (found === BEAR_COUNT) {
-    statusLine.textContent = quips[5];
     unlockLine.textContent = "Duckhunt klaar. Bram en Kayleigh mogen wonen. Tweeling blij. Niemand zeuren.";
   } else if (found >= 90) {
-    statusLine.textContent = quips[4];
-    unlockLine.textContent = `Nog ${remaining}. Zelfs het broodrooster kijkt verdacht. Belachelijk huisfeest.`;
+    unlockLine.textContent = `Nog ${remaining} bonus-eenden. De bon is al los, maar eeuwige roem eist irritante precisie.`;
   } else if (found >= 50) {
-    statusLine.textContent = quips[3];
-    unlockLine.textContent = `Nog ${remaining}. Die eenden worden stil. Mooi, eindelijk.`;
+    unlockLine.textContent = `Nog ${remaining} totaal, nog ${untilVoucher} voor de dinerbon. Die eenden worden stil. Mooi, eindelijk.`;
   } else if (found >= 20) {
-    statusLine.textContent = quips[2];
-    unlockLine.textContent = `Nog ${remaining}. Waarschijnlijk achter iets dat Kayleigh net netjes had gezet. Laat de kids maar wijzen.`;
+    unlockLine.textContent = `Nog ${remaining} totaal, nog ${untilVoucher} voor de dinerbon. Waarschijnlijk achter iets dat Kayleigh net netjes had gezet.`;
   } else if (found > 0) {
-    statusLine.textContent = quips[1];
-    unlockLine.textContent = `Nog ${remaining} te gaan. Doorzoeken, nie lullen.`;
+    unlockLine.textContent = `Nog ${remaining} totaal, nog ${untilVoucher} voor de dinerbon. Doorzoeken, nie lullen.`;
   } else {
-    statusLine.textContent = quips[0];
     unlockLine.textContent = "Nog 100 te gaan. Bram en Kayleigh wonen hier net; de tweeling heeft werk te doen.";
   }
 }
