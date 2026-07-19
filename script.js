@@ -341,6 +341,7 @@ let pendingProofBearId = 0;
 let editingNameBearId = 0;
 let adminPin = getAdminPin();
 let isAdmin = false;
+let proofImageVersion = "";
 
 function isLocalHost() {
   return window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
@@ -459,6 +460,9 @@ async function requestNameEditAccess(bearId) {
 }
 
 function mergeSharedState(sharedState) {
+  if (typeof sharedState?.updatedAt === "string" && sharedState.updatedAt) {
+    proofImageVersion = encodeURIComponent(sharedState.updatedAt);
+  }
   const sharedBears = Array.isArray(sharedState?.bears) ? sharedState.bears : [];
   return createFreshState().map((bear) => {
     const sharedBear = sharedBears.find((item) => Number(item.id) === bear.id);
@@ -476,6 +480,12 @@ function mergeSharedState(sharedState) {
 function imagePath(id) {
   const realImageId = 2582 + ((id - 1) % 10);
   return `./assets/real-ducks/img_${realImageId}.jpg`;
+}
+
+function proofImageUrl(path) {
+  if (!path) return "";
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}v=${proofImageVersion || Date.now()}`;
 }
 
 function initialsForName(name) {
@@ -592,7 +602,7 @@ function render() {
     card.classList.toggle("is-name-editing", isAdmin && editingNameBearId === bear.id);
     noteField.hidden = true;
     if (bear.proofImage) {
-      cardProofImage.src = bear.proofImage;
+      cardProofImage.src = proofImageUrl(bear.proofImage);
       cardProofImage.alt = `Kwakbewijs voor ${bear.name}`;
     } else {
       cardProofImage.removeAttribute("src");
@@ -722,7 +732,7 @@ function openProofDialog(bear) {
   proofDialogText.textContent = bear.story;
   proofDialogInput.value = "";
   if (hasProof) {
-    proofDialogImage.src = bear.proofImage;
+    proofDialogImage.src = proofImageUrl(bear.proofImage);
     proofDialogImage.alt = `Kwakbewijs voor ${bear.name}`;
   } else {
     proofDialogImage.removeAttribute("src");
@@ -794,6 +804,7 @@ async function deleteProofForBear(bear, proofPassword) {
     });
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || "Kwakbewijs verwijderen mislukt.");
+    proofImageVersion = encodeURIComponent(body.updatedAt || new Date().toISOString());
     state = mergeSharedState(body);
     setModeBanner("Kwakbewijs verwijderd. De eend staat weer op zoek.", "success");
   } catch (error) {
@@ -925,6 +936,7 @@ async function saveProofSubmission(id, proofDataUrl, proofPassword = "") {
     });
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || "Bewijs indienen mislukt.");
+    proofImageVersion = encodeURIComponent(body.updatedAt || new Date().toISOString());
     state = mergeSharedState(body);
     setModeBanner("Kwakbewijs geaccepteerd. Nummer onderop gezien? Dan doorpakken.", "success");
     return state.find((item) => item.id === id);
