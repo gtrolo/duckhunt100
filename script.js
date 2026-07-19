@@ -430,7 +430,7 @@ async function verifyAdminAccess() {
   try {
     await verifyPin(adminPin);
     isAdmin = true;
-    setModeBanner("Beheerstand. Gij zijt admin. Mooi. Niet naast uw schoenen gaan lopen.", "success");
+    setModeBanner("Beheerstand aan. Gij moogt namen en notities bijwerken; de eenden blijven verder gewoon gezocht.", "success");
   } catch (error) {
     if (isLocalHost()) {
       isAdmin = true;
