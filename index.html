@@ -215,13 +215,6 @@
       </article>
     </template>
 
-    <dialog id="bearDialog">
-      <button class="close" type="button" aria-label="Sluiten">x</button>
-      <img id="dialogImage" alt="" />
-      <h3 id="dialogTitle"></h3>
-      <p id="dialogText"></p>
-    </dialog>
-
     <dialog id="shareDialog">
       <button class="close share-close" type="button" aria-label="Sluiten">x</button>
       <div class="share-panel">
@@ -242,14 +235,20 @@
         <p class="kicker" id="proofDialogKicker">Eerst bewijs, dan worstenbrood</p>
         <h3 id="proofDialogTitle">Kwakbewijs uploaden</h3>
         <p id="proofDialogText">Maak of kies een foto van de gevonden eend waarop het nummer onderop duidelijk zichtbaar is. Pas daarna mag deze verdachte officieel op gevonden.</p>
+        <div class="proof-dialog-icon" id="proofDialogIcon" aria-hidden="true">
+          <span id="proofDialogInitials"></span>
+        </div>
         <img class="proof-dialog-image" id="proofDialogImage" alt="" />
         <label class="proof-upload proof-dialog-upload">
           <span>Kwakbewijs</span>
           <input id="proofDialogInput" type="file" accept="image/*" />
         </label>
         <div class="proof-dialog-actions">
-          <button class="button primary" id="proofDialogUploadButton" type="button">Foto kiezen</button>
-          <button class="button danger" id="proofDialogDeleteButton" type="button">Bewijs verwijderen</button>
+          <button class="button primary" id="proofDialogUploadButton" type="button">Bewijs uploaden</button>
+          <div class="proof-dialog-secondary">
+            <button id="proofDialogAdjustButton" type="button">Aanpassen</button>
+            <button id="proofDialogDeleteButton" type="button">Verwijderen</button>
+          </div>
         </div>
       </div>
     </dialog>

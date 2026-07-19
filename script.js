@@ -313,11 +313,6 @@ const panicButton = document.querySelector("#panicButton");
 const modeBanner = document.querySelector("#modeBanner");
 const filterButtons = [...document.querySelectorAll("[data-filter]")];
 const filterLinks = [...document.querySelectorAll("[data-filter-link]")];
-const dialog = document.querySelector("#bearDialog");
-const dialogImage = document.querySelector("#dialogImage");
-const dialogTitle = document.querySelector("#dialogTitle");
-const dialogText = document.querySelector("#dialogText");
-const closeDialog = document.querySelector(".close");
 const shareDialog = document.querySelector("#shareDialog");
 const shareTitle = document.querySelector("#shareTitle");
 const shareIntro = document.querySelector("#shareIntro");
@@ -329,9 +324,12 @@ const proofDialog = document.querySelector("#proofDialog");
 const proofDialogKicker = document.querySelector("#proofDialogKicker");
 const proofDialogTitle = document.querySelector("#proofDialogTitle");
 const proofDialogText = document.querySelector("#proofDialogText");
+const proofDialogIcon = document.querySelector("#proofDialogIcon");
+const proofDialogInitials = document.querySelector("#proofDialogInitials");
 const proofDialogImage = document.querySelector("#proofDialogImage");
 const proofDialogInput = document.querySelector("#proofDialogInput");
 const proofDialogUploadButton = document.querySelector("#proofDialogUploadButton");
+const proofDialogAdjustButton = document.querySelector("#proofDialogAdjustButton");
 const proofDialogDeleteButton = document.querySelector("#proofDialogDeleteButton");
 const closeProofDialog = document.querySelector(".proof-close");
 
@@ -667,11 +665,7 @@ function render() {
 
     imageButton.addEventListener("click", () => {
       const currentBear = state.find((item) => item.id === bear.id) || bear;
-      if (currentBear.found) {
-        openProofDialog(currentBear);
-        return;
-      }
-      openBearDetail(currentBear);
+      openProofDialog(currentBear);
     });
 
     grid.append(card);
@@ -720,20 +714,12 @@ function requestProofPassword(message) {
 function openProofDialog(bear) {
   pendingProofBearId = bear.id;
   const hasProof = Boolean(bear.proofImage);
+  const statusText = bear.found ? "Gevonden" : "Nog zoek";
   proofDialog.dataset.variant = hasProof ? "found" : "new";
-  setModeBanner(
-    hasProof
-      ? `Kwakbewijs beheren voor #${String(bear.id).padStart(3, "0")}. Aanpassen of verwijderen kan met wachtwoord ${PROOF_PASSWORD_LABEL}.`
-      : `Kwakbewijs nodig voor #${String(bear.id).padStart(3, "0")}. Foto van het nummer onderop, dan pas gevonden. Simpel zat.`,
-    hasProof ? "info" : "saving"
-  );
-  proofDialogKicker.textContent = hasProof ? "Al gevangen, bewijs in beheer" : "Nieuwe vondst, eerst bewijs";
-  proofDialogTitle.textContent = hasProof
-    ? `Kwakbewijs beheren voor #${String(bear.id).padStart(3, "0")} ${bear.name}`
-    : `Kwakbewijs voor #${String(bear.id).padStart(3, "0")} ${bear.name}`;
-  proofDialogText.textContent = hasProof
-    ? "Deze eend is al gevonden. Wil je het bewijs aanpassen of verwijderen, dan vraagt de app om het wachtwoord."
-    : `Draai de eend om en maak een foto waarop nummer ${String(bear.id).padStart(3, "0")} onderop duidelijk zichtbaar is. Geen nummer, geen worstenbrood. Klaar.`;
+  setModeBanner(`Eend #${String(bear.id).padStart(3, "0")} geopend. ${hasProof ? "Bewijs beheren kan hier." : "Upload bewijs om af te vinken."}`, hasProof ? "info" : "saving");
+  proofDialogKicker.textContent = `#${String(bear.id).padStart(3, "0")} - ${statusText}`;
+  proofDialogTitle.textContent = bear.name;
+  proofDialogText.textContent = bear.story;
   proofDialogInput.value = "";
   if (hasProof) {
     proofDialogImage.src = bear.proofImage;
@@ -742,10 +728,16 @@ function openProofDialog(bear) {
     proofDialogImage.removeAttribute("src");
     proofDialogImage.alt = "";
   }
+  proofDialogInitials.textContent = initialsForName(bear.name);
+  const tokenTheme = tokenThemes[(bear.id - 1) % tokenThemes.length];
+  proofDialogIcon.style.setProperty("--token-a", tokenTheme[0]);
+  proofDialogIcon.style.setProperty("--token-b", tokenTheme[1]);
   proofDialogImage.hidden = !hasProof;
+  proofDialogIcon.hidden = hasProof;
   proofDialog.querySelector(".proof-dialog-upload").hidden = true;
   proofDialogUploadButton.hidden = false;
-  proofDialogUploadButton.textContent = hasProof ? "Kwakbewijs aanpassen" : "Foto kiezen";
+  proofDialogUploadButton.textContent = hasProof ? "Nieuw bewijs uploaden" : "Bewijs uploaden";
+  proofDialogAdjustButton.hidden = !hasProof;
   proofDialogDeleteButton.hidden = !hasProof;
   proofDialog.showModal();
 }
@@ -848,18 +840,7 @@ function showFoundSharePopup(bear) {
 }
 
 function openBearDetail(bear) {
-  const imageSource = bear.proofImage || imagePath(bear.id);
-  dialogImage.src = imageSource;
-  dialogImage.alt = `Detail van ${bear.name}`;
-  dialogTitle.textContent = `#${String(bear.id).padStart(3, "0")} ${bear.name}`;
-  dialogText.textContent = [
-    bear.found ? "Status: gevonden. Beetje beledigd, jammer dan." : "Status: nog voortvluchtig met natte voeten en praatjes.",
-    bear.proofImage ? "Deze foto is het kwakbewijs." : "",
-    bear.story,
-    bear.note ? `Vindplaatsnotitie / kwakrapport: ${bear.note}` : "",
-    `Directe link: ${bearUrl(bear.id)}`
-  ].filter(Boolean).join(" ");
-  dialog.showModal();
+  openProofDialog(bear);
 }
 
 function markLinkedBear() {
@@ -1070,7 +1051,6 @@ panicButton.addEventListener("click", () => {
   );
 });
 
-closeDialog.addEventListener("click", () => dialog.close());
 closeShareDialog.addEventListener("click", () => shareDialog.close());
 closeProofDialog.addEventListener("click", () => {
   pendingProofBearId = 0;
@@ -1084,6 +1064,10 @@ proofDialogInput.addEventListener("change", () => {
 });
 
 proofDialogUploadButton.addEventListener("click", () => {
+  proofDialogInput.click();
+});
+
+proofDialogAdjustButton.addEventListener("click", () => {
   proofDialogInput.click();
 });
 
