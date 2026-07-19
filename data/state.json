@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T06:44:14.918Z",
+  "updatedAt": "2026-07-19T06:44:35.705Z",
   "bears": [
     {
       "id": 1,
@@ -87,10 +87,10 @@
     },
     {
       "id": 13,
-      "found": true,
+      "found": false,
       "name": "Maarten Mainstage",
       "note": "",
-      "proofImage": "/assets/proofs/duck-013.jpg"
+      "proofImage": ""
     },
     {
       "id": 14,
