@@ -982,11 +982,12 @@ function openHintDialog(hint) {
   pendingHintDeleteImage = false;
   const hasContent = Boolean(hint.text.trim() || hint.image);
   hintDialog.dataset.variant = hasContent ? "found" : "new";
+  hintDialog.dataset.existing = hasContent ? "true" : "false";
   hintDialogKicker.textContent = `Hint H${String(hint.id).padStart(2, "0")}`;
   hintDialogTitle.textContent = hasContent ? "Hint bekijken" : "Hint plaatsen";
   hintDialogText.textContent = hasContent
     ? "Aanpassen of verwijderen kan met het hint-wachtwoord."
-    : "Geef de zoekers een zetje. Of stuur ze subtiel het riet in.";
+    : "Drop een cryptische tekst of foto.";
   hintDialogTextarea.value = hint.text || "";
   hintDialogInput.value = "";
   hintDialogImage.onerror = () => {
@@ -1027,7 +1028,7 @@ async function saveHintFromDialog() {
   const hint = hints.find((item) => item.id === pendingHintId);
   if (!hint) return;
   const text = hintDialogTextarea.value.trim();
-  const hasExistingContent = Boolean(hint.text.trim() || hint.image);
+  const hasExistingContent = hintDialog.dataset.existing === "true";
   const password = hasExistingContent
     ? requestProofPassword("Wachtwoord om deze hint aan te passen:")
     : "";
@@ -1091,6 +1092,7 @@ async function deleteHintFromDialog() {
     if (!response.ok) throw new Error(body.error || "Hint verwijderen mislukt.");
     proofImageVersion = encodeURIComponent(body.updatedAt || new Date().toISOString());
     hintImagePreviews.delete(hint.id);
+    hints = hints.map((item) => item.id === hint.id ? { ...item, text: "", image: "" } : item);
     state = mergeSharedState(body);
     hintDialog.close();
     pendingHintId = 0;
