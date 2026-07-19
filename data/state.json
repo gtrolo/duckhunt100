@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T06:36:45.676Z",
+  "updatedAt": "2026-07-19T06:37:05.552Z",
   "bears": [
     {
       "id": 1,
@@ -241,10 +241,10 @@
     },
     {
       "id": 35,
-      "found": true,
+      "found": false,
       "name": "Pietje Pijpbroek",
       "note": "",
-      "proofImage": "/assets/proofs/duck-035.jpg"
+      "proofImage": ""
     },
     {
       "id": 36,
