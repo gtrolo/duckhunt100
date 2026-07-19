@@ -493,6 +493,22 @@ function proofImageSource(bear) {
   return proofImagePreviews.get(bear.id) || proofImageUrl(bear.proofImage);
 }
 
+function showProofImageFallback(bear, image, card) {
+  const preview = proofImagePreviews.get(bear.id);
+  if (preview && image.src !== preview) {
+    image.src = preview;
+    return;
+  }
+
+  image.removeAttribute("src");
+  image.alt = "";
+  card?.classList.remove("has-proof");
+  if (card) {
+    const token = card.querySelector(".duck-token");
+    token.hidden = false;
+  }
+}
+
 function initialsForName(name) {
   return name
     .replace(/^Duck\s+#\d+\s+-\s+/i, "")
@@ -606,6 +622,7 @@ function render() {
     card.classList.toggle("is-view-only", !isAdmin);
     card.classList.toggle("is-name-editing", isAdmin && editingNameBearId === bear.id);
     noteField.hidden = true;
+    cardProofImage.onerror = () => showProofImageFallback(bear, cardProofImage, card);
     if (bear.proofImage) {
       cardProofImage.src = proofImageSource(bear);
       cardProofImage.alt = `Kwakbewijs voor ${bear.name}`;
@@ -736,6 +753,11 @@ function openProofDialog(bear) {
   proofDialogTitle.textContent = bear.name;
   proofDialogText.textContent = bear.story;
   proofDialogInput.value = "";
+  proofDialogImage.onerror = () => {
+    showProofImageFallback(bear, proofDialogImage);
+    proofDialogImage.hidden = true;
+    proofDialogIcon.hidden = false;
+  };
   if (hasProof) {
     proofDialogImage.src = proofImageSource(bear);
     proofDialogImage.alt = `Kwakbewijs voor ${bear.name}`;
@@ -790,7 +812,27 @@ async function uploadProofForBear(bear, file) {
     "saving"
   );
   const proofDataUrl = await resizeImage(file);
-  return saveProofSubmission(bear.id, proofDataUrl, proofPassword);
+  proofImagePreviews.set(bear.id, proofDataUrl);
+  updateBear(bear.id, {
+    found: true,
+    proofImage: proofDataUrl
+  });
+  proofDialogImage.src = proofDataUrl;
+  proofDialogImage.hidden = false;
+  proofDialogIcon.hidden = true;
+  render();
+
+  try {
+    return await saveProofSubmission(bear.id, proofDataUrl, proofPassword);
+  } catch (error) {
+    proofImagePreviews.delete(bear.id);
+    updateBear(bear.id, {
+      found: Boolean(bear.found),
+      proofImage: bear.proofImage || ""
+    });
+    render();
+    throw error;
+  }
 }
 
 async function deleteProofForBear(bear, proofPassword) {
