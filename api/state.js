@@ -7,6 +7,7 @@ const repo = cleanEnv("GITHUB_REPO", "duckhunt100");
 const branch = cleanEnv("GITHUB_BRANCH", "main");
 const statePath = "data/state.json";
 const proofPassword = cleanPin(process.env.PROOF_PASSWORD || "bramkayleigh");
+let blobSdkPromise;
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -217,6 +218,20 @@ async function writeProofImage(id, dataUrl) {
   if (!match) throw new Error("Kwakbewijs heeft geen geldig afbeeldingsformaat.");
 
   const extension = match[1] === "png" ? "png" : match[1] === "webp" ? "webp" : "jpg";
+  const buffer = Buffer.from(match[2], "base64");
+
+  if (canUseBlob()) {
+    const { put } = await loadBlobSdk();
+    const blob = await put(`proofs/duck-${String(id).padStart(3, "0")}.${extension}`, buffer, {
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      cacheControlMaxAge: 0,
+      contentType: `image/${extension === "jpg" ? "jpeg" : extension}`
+    });
+    return blob.url;
+  }
+
   const proofPath = `assets/proofs/duck-${String(id).padStart(3, "0")}.${extension}`;
   const existing = await githubRequest("GET", `/repos/${owner}/${repo}/contents/${proofPath}?ref=${branch}`, undefined, true);
 
@@ -231,6 +246,12 @@ async function writeProofImage(id, dataUrl) {
 }
 
 async function deleteProofImage(proofImage) {
+  if (canUseBlob() && /^https?:\/\//i.test(String(proofImage))) {
+    const { del } = await loadBlobSdk();
+    await del(proofImage);
+    return;
+  }
+
   const proofPath = String(proofImage).replace(/^\/+/, "");
   if (!proofPath.startsWith("assets/proofs/")) return;
 
@@ -256,11 +277,22 @@ function sanitizeState(input) {
         found: Boolean(bear.found),
         name: typeof bear.name === "string" ? bear.name.slice(0, 80) : undefined,
         note: typeof bear.note === "string" ? bear.note.slice(0, 400) : "",
-        proofImage: typeof bear.proofImage === "string" ? bear.proofImage.slice(0, 160) : "",
+        proofImage: typeof bear.proofImage === "string" ? bear.proofImage.slice(0, 600) : "",
         proofDataUrl: typeof bear.proofDataUrl === "string" ? bear.proofDataUrl : undefined
       };
     })
   };
+}
+
+function canUseBlob() {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+async function loadBlobSdk() {
+  if (!blobSdkPromise) {
+    blobSdkPromise = import("@vercel/blob");
+  }
+  return blobSdkPromise;
 }
 
 async function githubRequest(method, apiPath, body, allowNotFound = false) {
