@@ -612,7 +612,7 @@ h2 {
 
 .bear-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -670,8 +670,6 @@ h2 {
 }
 
 .bear-card.is-direct-hit {
-  grid-column: 1 / -1;
-  border-radius: 22px;
   box-shadow: 0 18px 40px rgba(6, 84, 103, 0.16);
 }
 
@@ -912,20 +910,6 @@ h2 {
 
 .image-button:hover .duck-token {
   transform: scale(1.06) rotate(calc(var(--token-rotate) + 2deg));
-}
-
-.bear-card.is-direct-hit .image-button {
-  min-height: 112px;
-  height: 116px;
-  aspect-ratio: auto;
-}
-
-.bear-card.is-direct-hit .duck-token {
-  width: min(42%, 132px);
-}
-
-.bear-card.is-direct-hit .duck-initials {
-  font-size: clamp(1.2rem, 7vw, 2rem);
 }
 
 .badge {

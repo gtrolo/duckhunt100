@@ -1022,8 +1022,11 @@ function applyFilters() {
   });
 }
 
-function setBearFilter(filter) {
+function setBearFilter(filter, { clearSearch = false } = {}) {
   activeFilter = filter;
+  if (clearSearch) {
+    searchInput.value = "";
+  }
   filterButtons.forEach((item) => item.classList.toggle("active", item.dataset.filter === filter));
   applyFilters();
 }
@@ -1036,7 +1039,7 @@ filterButtons.forEach((button) => {
 
 filterLinks.forEach((link) => {
   link.addEventListener("click", () => {
-    setBearFilter(link.dataset.filterLink);
+    setBearFilter(link.dataset.filterLink, { clearSearch: true });
   });
 });
 
