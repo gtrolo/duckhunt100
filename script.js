@@ -866,9 +866,10 @@ function requestProofPassword(message) {
 function openProofDialog(bear) {
   pendingProofBearId = bear.id;
   const hasProof = Boolean(bear.proofImage);
+  const canManageProof = hasProof || bear.found;
   const statusText = bear.found ? "Gevonden" : "Nog zoek";
-  proofDialog.dataset.variant = hasProof ? "found" : "new";
-  setModeBanner(`Eend #${String(bear.id).padStart(3, "0")} geopend. ${hasProof ? "Bewijs beheren kan hier." : "Upload bewijs om af te vinken."}`, hasProof ? "info" : "saving");
+  proofDialog.dataset.variant = canManageProof ? "found" : "new";
+  setModeBanner(`Eend #${String(bear.id).padStart(3, "0")} geopend. ${canManageProof ? "Status beheren kan hier." : "Upload bewijs om af te vinken."}`, canManageProof ? "info" : "saving");
   proofDialogKicker.textContent = `#${String(bear.id).padStart(3, "0")} - ${statusText}`;
   proofDialogTitle.textContent = bear.name;
   proofDialogText.textContent = bear.story;
@@ -895,7 +896,8 @@ function openProofDialog(bear) {
   proofDialogUploadButton.hidden = false;
   proofDialogUploadButton.textContent = hasProof ? "Nieuw bewijs uploaden" : "Bewijs uploaden";
   proofDialogAdjustButton.hidden = !hasProof;
-  proofDialogDeleteButton.hidden = !hasProof;
+  proofDialogDeleteButton.hidden = !canManageProof;
+  proofDialogDeleteButton.textContent = hasProof ? "Verwijderen" : "Zet terug op zoek";
   proofDialog.showModal();
 }
 
@@ -1418,10 +1420,14 @@ proofDialogAdjustButton.addEventListener("click", () => {
 
 proofDialogDeleteButton.addEventListener("click", async () => {
   const bear = state.find((item) => item.id === pendingProofBearId);
-  if (!bear?.proofImage) return;
-  const proofPassword = requestProofPassword("Wachtwoord om dit kwakbewijs te verwijderen:");
+  if (!bear?.found && !bear?.proofImage) return;
+  const proofPassword = requestProofPassword(
+    bear.proofImage
+      ? "Wachtwoord om dit kwakbewijs te verwijderen:"
+      : "Wachtwoord om deze eend terug op zoeken te zetten:"
+  );
   if (!proofPassword) return;
-  if (!window.confirm(`Kwakbewijs voor #${String(bear.id).padStart(3, "0")} verwijderen?`)) return;
+  if (!window.confirm(`Eend #${String(bear.id).padStart(3, "0")} terugzetten op nog zoek?`)) return;
 
   try {
     await deleteProofForBear(bear, proofPassword);

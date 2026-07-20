@@ -201,7 +201,7 @@ async function writeProofUpdate(update) {
   if (update.deleteProof) {
     proofImageToDelete = nextProofImage;
     nextProofImage = "";
-    nextFound = true;
+    nextFound = false;
   } else {
     if (typeof update.proofDataUrl !== "string" || !update.proofDataUrl) {
       throw new Error("Geen nieuwe kwakbewijsfoto ontvangen.");
