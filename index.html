@@ -77,9 +77,18 @@
             <button class="chip active" data-filter="all" type="button">Alle</button>
             <button class="chip" data-filter="missing" type="button">Nog zoek</button>
             <button class="chip" data-filter="found" type="button">Gevonden</button>
+            <a class="chip hint-chip" href="#latestHint">Hints</a>
           </div>
         </div>
         <p class="mode-banner" id="modeBanner">Publieke jachtstand. Iedereen mag een eend vinden. Alleen met kwakbewijs. Geen foto? Dan hebde niks, jonge.</p>
+        <article class="latest-hint-card" id="latestHint" aria-live="polite">
+          <div>
+            <p class="kicker">Laatste hint</p>
+            <h3 id="latestHintTitle">Nog geen hint gedropt</h3>
+            <p id="latestHintText">De verstoppers houden hun snavel nog even dicht.</p>
+          </div>
+          <a class="latest-hint-link" href="#hints">Alle hints</a>
+        </article>
         <div class="tools">
           <label class="search">
             <span>Zoek</span>

@@ -263,12 +263,14 @@ async function writeHintUpdate(update) {
   let nextName = typeof targetHint.name === "string" ? targetHint.name : "";
   let nextText = typeof targetHint.text === "string" ? targetHint.text : "";
   let nextImage = typeof targetHint.image === "string" ? targetHint.image : "";
+  let nextUpdatedAt = typeof targetHint.updatedAt === "string" ? targetHint.updatedAt : "";
 
   if (update.deleteHint) {
     imageToDelete = nextImage;
     nextName = "";
     nextText = "";
     nextImage = "";
+    nextUpdatedAt = "";
   } else {
     nextName = typeof update.name === "string" ? update.name.slice(0, 70).trim() : nextName;
     nextText = typeof update.text === "string" ? update.text.slice(0, 320).trim() : nextText;
@@ -286,12 +288,13 @@ async function writeHintUpdate(update) {
     if (!nextName) {
       throw new Error("Naam erbij graag. Anders is het laf anoniem gehint.");
     }
+    nextUpdatedAt = new Date().toISOString();
   }
 
   const nextState = {
     updatedAt: new Date().toISOString(),
     bears: sanitizeBears(currentState.bears),
-    hints: currentHints.map((hint) => hint.id === id ? { id, name: nextName, text: nextText, image: nextImage } : hint)
+    hints: currentHints.map((hint) => hint.id === id ? { id, name: nextName, text: nextText, image: nextImage, updatedAt: nextUpdatedAt } : hint)
   };
 
   await writePersistedState(nextState);
@@ -390,6 +393,7 @@ function sanitizeHints(input) {
       name: typeof hint.name === "string" ? hint.name.slice(0, 70) : "",
       text: typeof hint.text === "string" ? hint.text.slice(0, 320) : "",
       image: typeof hint.image === "string" ? hint.image.slice(0, 600) : "",
+      updatedAt: typeof hint.updatedAt === "string" ? hint.updatedAt.slice(0, 40) : "",
       imageDataUrl: typeof hint.imageDataUrl === "string" ? hint.imageDataUrl : undefined
     };
   });

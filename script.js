@@ -342,6 +342,8 @@ const heroQuote = document.querySelector("#heroQuote");
 const searchInput = document.querySelector("#searchInput");
 const panicButton = document.querySelector("#panicButton");
 const modeBanner = document.querySelector("#modeBanner");
+const latestHintTitle = document.querySelector("#latestHintTitle");
+const latestHintText = document.querySelector("#latestHintText");
 const filterButtons = [...document.querySelectorAll("[data-filter]")];
 const filterLinks = [...document.querySelectorAll("[data-filter-link]")];
 const shareDialog = document.querySelector("#shareDialog");
@@ -413,7 +415,8 @@ function createFreshHints() {
     id: index + 1,
     name: "",
     text: "",
-    image: ""
+    image: "",
+    updatedAt: ""
   }));
 }
 
@@ -531,7 +534,8 @@ function mergeSharedState(sharedState) {
       ...hint,
       name: typeof sharedHint.name === "string" ? sharedHint.name : "",
       text: typeof sharedHint.text === "string" ? sharedHint.text : "",
-      image: typeof sharedHint.image === "string" ? sharedHint.image : ""
+      image: typeof sharedHint.image === "string" ? sharedHint.image : "",
+      updatedAt: typeof sharedHint.updatedAt === "string" ? sharedHint.updatedAt : ""
     };
   });
 
@@ -830,6 +834,36 @@ function renderHints() {
     editButton.addEventListener("click", () => openHintDialog(hint));
     hintGrid.append(card);
   });
+  renderLatestHint();
+}
+
+function getLatestHint() {
+  const filledHints = hints.filter((hint) => hint.text.trim() || hint.image);
+  if (!filledHints.length) return null;
+  return filledHints
+    .slice()
+    .sort((a, b) => {
+      const aTime = Date.parse(a.updatedAt || "");
+      const bTime = Date.parse(b.updatedAt || "");
+      if (Number.isFinite(aTime) && Number.isFinite(bTime) && aTime !== bTime) return bTime - aTime;
+      if (Number.isFinite(bTime) && !Number.isFinite(aTime)) return -1;
+      if (Number.isFinite(aTime) && !Number.isFinite(bTime)) return 1;
+      return b.id - a.id;
+    })[0];
+}
+
+function renderLatestHint() {
+  if (!latestHintTitle || !latestHintText) return;
+  const latestHint = getLatestHint();
+  if (!latestHint) {
+    latestHintTitle.textContent = "Nog geen hint gedropt";
+    latestHintText.textContent = "De verstoppers houden hun snavel nog even dicht.";
+    return;
+  }
+
+  latestHintTitle.textContent = `H${String(latestHint.id).padStart(2, "0")} van ${latestHint.name.trim() || "anonieme verstopper"}`;
+  latestHintText.textContent = latestHint.text.trim()
+    || "Er staat een hintfoto klaar. Tik op alle hints, dan kunde zelf loeren.";
 }
 
 function setModeBanner(text, kind = "info") {
@@ -1209,11 +1243,12 @@ async function saveSharedState() {
             proofImage,
             proofDataUrl
           })),
-          hints: hints.map(({ id, name, text, image }) => ({
+          hints: hints.map(({ id, name, text, image, updatedAt }) => ({
             id,
             name,
             text,
-            image
+            image,
+            updatedAt
           }))
         }
       })

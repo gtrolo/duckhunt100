@@ -556,7 +556,12 @@ h2 {
 .controls .chip {
   flex: 1;
   min-width: 0;
-  padding-inline: 9px;
+  padding-inline: 8px;
+}
+
+.controls .hint-chip {
+  color: var(--navy);
+  background: var(--sun);
 }
 
 .mode-banner {
@@ -583,6 +588,55 @@ h2 {
 .mode-banner[data-kind="success"] {
   color: var(--navy);
   background: var(--lime);
+}
+
+.latest-hint-card {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 14px;
+  color: var(--navy);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 223, 67, 0.76) 0 42px, transparent 44px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(232, 255, 213, 0.76));
+  border-radius: 22px;
+  box-shadow: inset 0 0 0 1px rgba(16, 51, 59, 0.08), 0 14px 34px rgba(4, 125, 150, 0.1);
+}
+
+.latest-hint-card .kicker {
+  margin-bottom: 5px;
+}
+
+.latest-hint-card h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.latest-hint-card p:not(.kicker) {
+  margin: 7px 0 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 850;
+  line-height: 1.36;
+  overflow-wrap: anywhere;
+}
+
+.latest-hint-link {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 13px;
+  color: var(--foam);
+  background: var(--pool-deep);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-decoration: none;
+  text-transform: uppercase;
+  box-shadow: 0 12px 26px rgba(4, 125, 150, 0.18);
 }
 
 .back-to-list {
