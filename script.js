@@ -344,6 +344,7 @@ const panicButton = document.querySelector("#panicButton");
 const modeBanner = document.querySelector("#modeBanner");
 const latestHintTitle = document.querySelector("#latestHintTitle");
 const latestHintText = document.querySelector("#latestHintText");
+const openHintLinks = [...document.querySelectorAll("[data-open-hint-link]")];
 const filterButtons = [...document.querySelectorAll("[data-filter]")];
 const filterLinks = [...document.querySelectorAll("[data-filter-link]")];
 const shareDialog = document.querySelector("#shareDialog");
@@ -1056,6 +1057,24 @@ function openHintDialog(hint) {
   setTimeout(() => hintDialogTextarea.focus(), 0);
 }
 
+function nextHintSlot() {
+  return hints.find((hint) => !hint.text.trim() && !hint.image) || hints[0];
+}
+
+function isPlaceHintHash() {
+  return /^#(?:plaats-hint|hint-plaatsen)$/i.test(window.location.hash);
+}
+
+function openNextHintDialog({ scroll = true } = {}) {
+  const hint = nextHintSlot();
+  if (!hint) return;
+  if (scroll) {
+    document.querySelector("#hints")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  setModeBanner(`Directe hintlink geopend. We zetten 'm netjes op H${String(hint.id).padStart(2, "0")}.`, "success");
+  openHintDialog(hint);
+}
+
 async function chooseHintImage(file) {
   if (!file || !pendingHintId) return;
   try {
@@ -1209,6 +1228,14 @@ function openLinkedBear() {
   if (!bear || !card) return;
   card.scrollIntoView({ behavior: "smooth", block: "start" });
   openBearDetail(bear, bear.found);
+}
+
+function handleDeepLink() {
+  if (isPlaceHintHash()) {
+    openNextHintDialog();
+    return;
+  }
+  openLinkedBear();
 }
 
 function idFromHash() {
@@ -1417,6 +1444,15 @@ filterLinks.forEach((link) => {
   });
 });
 
+openHintLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    if (isPlaceHintHash()) {
+      event.preventDefault();
+      openNextHintDialog();
+    }
+  });
+});
+
 searchInput.addEventListener("input", applyFilters);
 
 panicButton.addEventListener("click", () => {
@@ -1504,7 +1540,7 @@ copyShareButton.addEventListener("click", async () => {
   }, 1400);
 });
 
-window.addEventListener("hashchange", openLinkedBear);
+window.addEventListener("hashchange", handleDeepLink);
 
 setModeBanner(
   adminPin
@@ -1515,5 +1551,5 @@ setRandomHeroQuote();
 render();
 Promise.all([loadSharedState(), verifyAdminAccess()]).then(() => {
   render();
-  openLinkedBear();
+  handleDeepLink();
 });

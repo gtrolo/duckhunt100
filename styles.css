@@ -623,7 +623,14 @@ h2 {
   overflow-wrap: anywhere;
 }
 
-.latest-hint-link {
+.latest-hint-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.latest-hint-link,
+.direct-hint-link {
   display: inline-flex;
   min-height: 40px;
   align-items: center;
@@ -637,6 +644,17 @@ h2 {
   text-decoration: none;
   text-transform: uppercase;
   box-shadow: 0 12px 26px rgba(4, 125, 150, 0.18);
+}
+
+.latest-hint-link.primary,
+.direct-hint-link {
+  color: var(--navy);
+  background: var(--sun);
+}
+
+.direct-hint-link {
+  width: 100%;
+  margin: 0 0 16px;
 }
 
 .back-to-list {
